@@ -49,6 +49,9 @@ const Positive = (props) => {
 
 const Statistics = (props) => {
   const states = [props.options[0].state, props.options[1].state, props.options[2].state]
+  if (states[0] == 0 && states[1] == 0 && states[2] == 0) {
+    return (<p>No feedback given</p>)
+  }
   return (
     <div>
       <Stat label = {props.options[0].name} state = {props.options[0].state}></Stat>
