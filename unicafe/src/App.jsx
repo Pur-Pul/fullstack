@@ -20,7 +20,12 @@ const Total = (props) => {
   for (let i = 0; i < props.states.length; i++) {
     sum += props.states[i]
   }
-  return (<p>all {sum}</p>)
+  return (
+    <tr>
+      <td>all</td>
+      <td>{sum} %</td>
+    </tr>
+  )
 }
 
 const Average = (props) => {
@@ -28,7 +33,12 @@ const Average = (props) => {
   for (let i = 0; i < props.states.length; i++) {
     sum += props.states[i] * (-1 * (i - 1))
   }
-  return (<p>average {sum}</p>)
+  return (
+    <tr>
+      <td>average</td>
+      <td>{sum} %</td>
+    </tr>
+  )
 }
 
 const Positive = (props) => {
@@ -40,26 +50,47 @@ const Positive = (props) => {
   if (sum > 0) {
     positive = (props.states[0]/sum) * 100
   }
-  return (<p>positive {positive} %</p>)
+  return (
+    <tr>
+      <td>positive</td>
+      <td>{positive} %</td>
+    </tr>
+  )
 }
 
 const StatisticsLine = (props) => {
-  return (<p>{props.text} {props.value}</p>)
+  return (
+    <tr>
+      <td>{props.text}</td>
+      <td>{props.value}</td>
+    </tr>
+  )
 }
 
 const Statistics = (props) => {
   const states = [props.options[0].state, props.options[1].state, props.options[2].state]
   if (states[0] == 0 && states[1] == 0 && states[2] == 0) {
-    return (<p>No feedback given</p>)
+    return (
+      <div>
+        <h1>statistics</h1>
+        <p>No feedback given</p>
+      </div>
+    )
   }
   return (
     <div>
-      <StatisticsLine text = {props.options[0].name} value = {props.options[0].state} />
-      <StatisticsLine text = {props.options[1].name} value = {props.options[1].state} />
-      <StatisticsLine text = {props.options[2].name} value = {props.options[2].state} />
-      <Total states = {states} />
-      <Average states = {states} />
-      <Positive states = {states} />
+      <h1>statistics</h1>
+      <table>
+        <thead></thead>
+        <tbody>
+          <StatisticsLine text = {props.options[0].name} value = {props.options[0].state} />
+          <StatisticsLine text = {props.options[1].name} value = {props.options[1].state} />
+          <StatisticsLine text = {props.options[2].name} value = {props.options[2].state} />
+          <Total states = {states} />
+          <Average states = {states} />
+          <Positive states = {states} />
+        </tbody>
+      </table>
     </div>
   )
 }
