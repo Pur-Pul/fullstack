@@ -15,10 +15,6 @@ const Feedback = (props) => {
   )
 }
 
-const Stat = (props) => {
-  return (<p>{props.label} {props.state}</p>)
-}
-
 const Total = (props) => {
   let sum = 0
   for (let i = 0; i < props.states.length; i++) {
@@ -47,6 +43,10 @@ const Positive = (props) => {
   return (<p>positive {positive} %</p>)
 }
 
+const StatisticsLine = (props) => {
+  return (<p>{props.text} {props.value}</p>)
+}
+
 const Statistics = (props) => {
   const states = [props.options[0].state, props.options[1].state, props.options[2].state]
   if (states[0] == 0 && states[1] == 0 && states[2] == 0) {
@@ -54,9 +54,9 @@ const Statistics = (props) => {
   }
   return (
     <div>
-      <Stat label = {props.options[0].name} state = {props.options[0].state}></Stat>
-      <Stat label = {props.options[1].name} state = {props.options[1].state}></Stat>
-      <Stat label = {props.options[2].name} state = {props.options[2].state}></Stat>
+      <StatisticsLine text = {props.options[0].name} value = {props.options[0].state} />
+      <StatisticsLine text = {props.options[1].name} value = {props.options[1].state} />
+      <StatisticsLine text = {props.options[2].name} value = {props.options[2].state} />
       <Total states = {states} />
       <Average states = {states} />
       <Positive states = {states} />
