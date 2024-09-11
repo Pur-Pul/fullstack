@@ -19,12 +19,44 @@ const Stat = (props) => {
   return (<p>{props.label} {props.state}</p>)
 }
 
+const Total = (props) => {
+  let sum = 0
+  for (let i = 0; i < props.states.length; i++) {
+    sum += props.states[i]
+  }
+  return (<p>all {sum}</p>)
+}
+
+const Average = (props) => {
+  let sum = 0
+  for (let i = 0; i < props.states.length; i++) {
+    sum += props.states[i] * (-1 * (i - 1))
+  }
+  return (<p>average {sum}</p>)
+}
+
+const Positive = (props) => {
+  let sum = 0
+  for (let i = 0; i < props.states.length; i++) {
+    sum += props.states[i]
+  }
+  let positive = 0
+  if (sum > 0) {
+    positive = (props.states[0]/sum) * 100
+  }
+  return (<p>positive {positive} %</p>)
+}
+
 const Statistics = (props) => {
+  const states = [props.options[0].state, props.options[1].state, props.options[2].state]
   return (
     <div>
       <Stat label = {props.options[0].name} state = {props.options[0].state}></Stat>
       <Stat label = {props.options[1].name} state = {props.options[1].state}></Stat>
       <Stat label = {props.options[2].name} state = {props.options[2].state}></Stat>
+      <Total states = {states} />
+      <Average states = {states} />
+      <Positive states = {states} />
     </div>
   )
 }
