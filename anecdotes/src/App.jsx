@@ -20,7 +20,17 @@ const RandomButton = (props) => {
 }
 
 const Votes = (props) => {
-  return(<p>has {props.votes[props.selected]} votes</p>)
+  return(<div>has {props.votes[props.selected]} votes</div>)
+}
+
+const Anecdote = (props) => {
+  return (
+    <div>
+      <h1>{props.heading}</h1>
+      <div>{props.anecdotes[props.selected]}</div>
+      <Votes votes={props.votes} selected={props.selected} />
+    </div>
+  )
 }
 
 const App = () => {
@@ -37,12 +47,21 @@ const App = () => {
       'The only way to go fast, is to go well.'
     ]
   
+  function index_of_max(arr) {
+    let max = 0
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] > arr[max])
+        max = i
+    }
+    return max
+  }
+
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <Votes votes={votes} selected={selected} />
+      <Anecdote heading = "Anecdote of the day" anecdotes = {anecdotes} votes = {votes} selected = {selected} />
       <Button set = {setVote} state = {votes} label = {"vote"} current_anecdote = {selected}/>
       <RandomButton set = {setSelected} state = {selected} anecdotes = {anecdotes} label = {"next anecdote"} vote_set = {setVote}/>
+      <Anecdote heading = "Anecdote with most votes" anecdotes = {anecdotes} votes = {votes} selected = {index_of_max(votes)} />
     </div>
   )
 }
