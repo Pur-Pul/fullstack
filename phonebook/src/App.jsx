@@ -1,7 +1,12 @@
 import { useState } from 'react'
 
-const Contact = ({person}) => {
-  return (<p>{person.name} {person.number}</p>)
+const Contacts = ({persons}) => {
+  return (
+    <div>
+      <h2>Numbers</h2>
+      {persons.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
+    </div>
+  )
 }
 
 const Filter =(props) => {
@@ -42,7 +47,7 @@ const App = () => {
     setFilter(event.target.value)
   }
 
-  const personsToShow = persons.filter(person => person.name.includes(filter))
+  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
   const addName = (event) => {
     event.preventDefault()
@@ -69,8 +74,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filter = {filter} handler = {handleFilterChange}/>
       <Add addName={addName} newName = {newName} newNumber = {newNumber} handleNameChange = {handleNameChange} handleNumberChange = {handleNumberChange} />
-      <h2>Numbers</h2>
-      {personsToShow.map(person => <Contact key={person.name} person={person}/>)}
+      <Contacts persons={personsToShow}/>
     </div>
   )
 }
