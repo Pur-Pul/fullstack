@@ -16,11 +16,15 @@ const Content = ({ parts }) => {
 }
 
 const Course = ({course}) => {
+  let sum = 0;
+  for (let i = 0; i < course.parts.length; i++) {
+    sum += course.parts[i].exercises;
+  }
   return (
     <div>
       <Header course={course.name} />
       <Content parts={course.parts} />
-      
+      <Total sum={sum} />
     </div>
   )
 }
