@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useState } from 'react'
+import axios from 'axios'
 
 const Contacts = ({persons}) => {
   return (
@@ -31,9 +33,8 @@ const Add = (props) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '111-1111111'}
-  ]) 
+  
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -66,8 +67,12 @@ const App = () => {
     setNewName('')
     setNewNumber('')
   }
-
-  
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons').then(response => {
+      const data = response.data
+      setPersons(data)
+    })
+  }, [])
 
   return (
     <div>
