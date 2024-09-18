@@ -31,9 +31,11 @@ const Contacts = (props) => {
       <h2>Numbers</h2>
       {props.persons.map(person => 
         <form key={person.id} onSubmit={() => {
-          personService.deletePerson(person.id).then(response => {
-            console.log(response)
-          })
+          if (window.confirm(`Delete ${person.name}`)) {
+            personService.deletePerson(person.id).then(response => {
+              console.log(response)
+            })
+          }
         }}>
           <div>{person.name} {person.number} <button type="submit">delete</button></div>
         </form>
@@ -84,11 +86,6 @@ const App = () => {
     setNewNumber('')
   }
 
-  const deleteName = (event) => {
-    event.preventDefault()
-    
-  }
-
   useEffect(() => {
     personService.getAll().then(response => {
       const data = response.data
@@ -101,7 +98,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filter = {filter} handler = {handleFilterChange}/>
       <Add addName={addName} newName = {newName} newNumber = {newNumber} handleNameChange = {handleNameChange} handleNumberChange = {handleNumberChange} />
-      <Contacts persons={personsToShow} deleteName={deleteName}/>
+      <Contacts persons={personsToShow}/>
     </div>
   )
 }
