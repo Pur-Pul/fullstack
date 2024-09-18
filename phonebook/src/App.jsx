@@ -64,19 +64,35 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    let name_exists = false
-    let number_exists = false
-    persons.forEach((element) => name_exists = name_exists || element.name == newName)
-    persons.forEach((element) => number_exists = number_exists || element.number == newNumber)
-    if (name_exists) {
-      alert(`${newName} is already added to phonebook`)
-    } else if (number_exists) {
-      alert(`${newNumber} is already added to phonebook`)
-    } else {
-      const new_person = {
-        name: newName,
-        number: newNumber
+    let name_exists = -1
+    let number_exists = -1
+    persons.forEach((element, index) => {
+      if (element.name == newName) {
+        name_exists = index
       }
+    })
+    persons.forEach((element, index) => {
+      if (element.number == newNumber) {
+        number_exists = index
+      }
+    })
+    const new_person = {
+      name: newName,
+      number: newNumber
+    }
+
+    if (name_exists != -1 && number_exists == -1) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        personService.update(persons[name_exists].id, new_person).then(response => {
+          const new_arr = persons.slice()
+          new_arr.splice(name_exists, 1, response.data)
+          setPersons(new_arr)
+          console.log(response)
+        })
+      }
+    } else if (number_exists != -1) {
+      alert(`${newNumber} is already added to phonebook`)
+    } else if (name_exists == -1 && number_exists == -1) {
       personService.create(new_person).then(response => {
         setPersons(persons.concat(response.data))
         console.log(response)
