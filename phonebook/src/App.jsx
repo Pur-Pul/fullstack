@@ -1,16 +1,8 @@
 import { useEffect } from 'react'
 import { useState } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
 
-const Contacts = ({persons}) => {
-  return (
-    <div>
-      <h2>Numbers</h2>
-      {persons.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
-    </div>
-  )
-}
+
 
 const Filter =(props) => {
   return (
@@ -29,6 +21,23 @@ const Add = (props) => {
         <div>number: <input value={props.newNumber} onChange={props.handleNumberChange}/></div>
         <div><button type="submit">add</button></div>
       </form>
+    </div>
+  )
+}
+
+const Contacts = (props) => {
+  return (
+    <div>
+      <h2>Numbers</h2>
+      {props.persons.map(person => 
+        <form key={person.id} onSubmit={() => {
+          personService.deletePerson(person.id).then(response => {
+            console.log(response)
+          })
+        }}>
+          <div>{person.name} {person.number} <button type="submit">delete</button></div>
+        </form>
+      )}
     </div>
   )
 }
@@ -74,6 +83,12 @@ const App = () => {
     setNewName('')
     setNewNumber('')
   }
+
+  const deleteName = (event) => {
+    event.preventDefault()
+    
+  }
+
   useEffect(() => {
     personService.getAll().then(response => {
       const data = response.data
@@ -86,7 +101,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filter = {filter} handler = {handleFilterChange}/>
       <Add addName={addName} newName = {newName} newNumber = {newNumber} handleNameChange = {handleNameChange} handleNumberChange = {handleNumberChange} />
-      <Contacts persons={personsToShow}/>
+      <Contacts persons={personsToShow} deleteName={deleteName}/>
     </div>
   )
 }
