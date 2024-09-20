@@ -3,14 +3,14 @@ import { useState } from 'react'
 import personService from './services/persons'
 import './index.css'
 
-const Notification = ({ message }) => {
-  if (message === '') {
+const Notification = ({message}) => {
+  if (message === null) {
     return null
   } 
 
   return (
-    <div className='message'>
-      {message}
+    <div className={message.type}>
+      {message.text}
     </div>
   )
 }
@@ -43,9 +43,16 @@ const Contacts = (props) => {
       {props.persons.map(person => 
         <form key={person.id} onSubmit={() => {
           if (window.confirm(`Delete ${person.name}`)) {
-            personService.deletePerson(person.id).then(response => {
-              console.log(response)
-            })
+            personService.deletePerson(person.id)
+              .then(response => {
+                console.log(response)
+              })
+              .catch(error => {
+                setMessage({text : `${person.name} was already deleted from server`, type : "error"})
+                setTimeout(() => {
+                  setMessage(null)
+                }, 5000)
+              })
           }
         }}>
           <div>{person.name} {person.number} <button type="submit">delete</button></div>
@@ -56,7 +63,7 @@ const Contacts = (props) => {
 }
 
 const App = () => {
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(null)
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const handleNameChange = (event) => {
@@ -94,36 +101,61 @@ const App = () => {
 
     if (name_exists != -1 && number_exists == -1) {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-        personService.update(persons[name_exists].id, new_person).then(response => {
-          const new_arr = persons.slice()
-          new_arr.splice(name_exists, 1, response.data)
-          setPersons(new_arr)
-          setMessage(`Changed number for ${new_person.name}`)
-          setTimeout(() => {
-            setMessage('')
-          }, 5000)
-        })
+        personService
+          .update(persons[name_exists].id, new_person)
+          .then(response => {
+            const new_arr = persons.slice()
+            new_arr.splice(name_exists, 1, response.data)
+            setPersons(new_arr)
+            setMessage({text : `Changed number for ${new_person.name}`, type : "message"})
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+          })
+          .catch(error => {
+            setMessage({text : `Failed to update the number for ${new_person.name}`, type : "error"})
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+          })
       }
     } else if (number_exists != -1) {
       alert(`${newNumber} is already added to phonebook`)
     } else if (name_exists == -1 && number_exists == -1) {
-      personService.create(new_person).then(response => {
-        setPersons(persons.concat(response.data))
-        setMessage(`Added ${new_person.name}`)
-        setTimeout(() => {
-          setMessage('')
-        }, 5000)
-      })
+      personService
+        .create(new_person)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+          setMessage({text : `Added ${new_person.name}`, type : "message"})
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+        .catch(error => {
+          setMessage({text : `Failed to add ${new_person.name} to server`, type : "error"})
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+        
     }
     setNewName('')
     setNewNumber('')
   }
 
   useEffect(() => {
-    personService.getAll().then(response => {
-      const data = response.data
-      setPersons(data)
-    })
+    personService
+      .getAll()
+      .then(response => {
+        const data = response.data
+        setPersons(data)
+      })
+      .catch(error => {
+        setMessage({text : `Failed to get data from server`, type : "error"})
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+      })
   }, [])
 
   return (
