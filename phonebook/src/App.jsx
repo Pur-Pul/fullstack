@@ -1,8 +1,19 @@
 import { useEffect } from 'react'
 import { useState } from 'react'
 import personService from './services/persons'
+import './index.css'
 
+const Notification = ({ message }) => {
+  if (message === '') {
+    return null
+  } 
 
+  return (
+    <div className='message'>
+      {message}
+    </div>
+  )
+}
 
 const Filter =(props) => {
   return (
@@ -45,7 +56,7 @@ const Contacts = (props) => {
 }
 
 const App = () => {
-  
+  const [message, setMessage] = useState('')
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const handleNameChange = (event) => {
@@ -87,7 +98,10 @@ const App = () => {
           const new_arr = persons.slice()
           new_arr.splice(name_exists, 1, response.data)
           setPersons(new_arr)
-          console.log(response)
+          setMessage(`Changed number for ${new_person.name}`)
+          setTimeout(() => {
+            setMessage('')
+          }, 5000)
         })
       }
     } else if (number_exists != -1) {
@@ -95,7 +109,10 @@ const App = () => {
     } else if (name_exists == -1 && number_exists == -1) {
       personService.create(new_person).then(response => {
         setPersons(persons.concat(response.data))
-        console.log(response)
+        setMessage(`Added ${new_person.name}`)
+        setTimeout(() => {
+          setMessage('')
+        }, 5000)
       })
     }
     setNewName('')
@@ -112,6 +129,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter filter = {filter} handler = {handleFilterChange}/>
       <Add addName={addName} newName = {newName} newNumber = {newNumber} handleNameChange = {handleNameChange} handleNumberChange = {handleNumberChange} />
       <Contacts persons={personsToShow}/>
