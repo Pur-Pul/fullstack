@@ -34,7 +34,12 @@ const CountryList = (props) => {
     } 
     return (
       <div>
-        {props.countries.map(country => <p key={country.name.official}>{country.name.common}</p>)}
+        {props.countries.map(country => 
+          <div key={country.name.official}>
+            <>{country.name.common} </>
+            <button onClick = {() => props.setFilter(country.name.common)}>show</button>
+          </div>
+          )}
       </div>
     )
   } else {
@@ -84,7 +89,7 @@ function App() {
   return (
     <div>
       <Filter filter = {filter} handler = {handleFilterChange}/>
-      <CountryList countries = {countriesToShow} selected={selected}/>
+      <CountryList countries = {countriesToShow} selected={selected} setFilter={setFilter}/>
     </div>
   )
 }
