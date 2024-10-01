@@ -113,7 +113,8 @@ const App = () => {
             }, 5000)
           })
           .catch(error => {
-            setMessage({text : `Failed to update the number for ${new_person.name}`, type : "error"})
+            console.log(error.response.data.error)
+            setMessage({text : error.response.data.error, type : "error"})
             setTimeout(() => {
               setMessage(null)
             }, 5000)
@@ -132,7 +133,8 @@ const App = () => {
           }, 5000)
         })
         .catch(error => {
-          setMessage({text : `Failed to add ${new_person.name} to server`, type : "error"})
+          console.log(error.response.data.error)
+          setMessage({text : error.response.data.error, type : "error"})
           setTimeout(() => {
             setMessage(null)
           }, 5000)
