@@ -125,6 +125,30 @@ test("Likes property of blog defaults to 0 if left empty.", async () => {
     assert('likes' in returned_blog)
     assert(returned_blog.likes == 0)
 })
+
+test("Blog requires a title.", async () => {
+  const newBlog = {
+    author: "Test Person",
+    url: "https://google.com/",
+    likes: 0,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
+test("Blog requires a url.", async () => {
+  const newBlog = {
+    title: "Test blog",
+    author: "Test Person",
+    likes: 0,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
 after(async () => {
   await mongoose.connection.close()
 })
