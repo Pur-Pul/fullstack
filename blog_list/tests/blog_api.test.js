@@ -105,6 +105,26 @@ test("New blog can be posted.", async () => {
     assert.strictEqual(response.body.length, initialBlogs.length + 1)
     assert(titles.includes('Test blog'))
 })
+
+test("Likes property of blog defaults to 0 if left empty.", async () => {
+  const newBlog = {
+    title: "Test blog",
+    author: "Test Person",
+    url: "https://google.com/",
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
+    const response = await api.get('/api/blogs')
+    const returned_blog = response.body.find(blog => {
+      return blog.title === "Test blog"
+    })
+    assert('likes' in returned_blog)
+    assert(returned_blog.likes == 0)
+})
 after(async () => {
   await mongoose.connection.close()
 })
