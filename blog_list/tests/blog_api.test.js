@@ -74,10 +74,18 @@ test('blogs are returned as json', async () => {
 
 test('there are six blogs', async () => {
   const response = await api.get('/api/blogs')
-
   assert.strictEqual(response.body.length, 6)
 })
 
+test("Blog contains 'id'.", async () => {
+  const response = await api.get('/api/blogs')
+  assert('id' in response.body[0])
+})
+
+test("Blog does not contain '_id'.", async () => {
+  const response = await api.get('/api/blogs')
+  assert(!('_id' in response.body[0]))
+})
 after(async () => {
   await mongoose.connection.close()
 })
