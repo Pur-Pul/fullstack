@@ -86,6 +86,25 @@ test("Blog does not contain '_id'.", async () => {
   const response = await api.get('/api/blogs')
   assert(!('_id' in response.body[0]))
 })
+
+test("New blog can be posted.", async () => {
+  const newBlog = {
+    title: "Test blog",
+    author: "Test Person",
+    url: "https://google.com/",
+    likes: 0,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
+    const response = await api.get('/api/blogs')
+    const titles = response.body.map(r => r.title)
+    assert.strictEqual(response.body.length, initialBlogs.length + 1)
+    assert(titles.includes('Test blog'))
+})
 after(async () => {
   await mongoose.connection.close()
 })
