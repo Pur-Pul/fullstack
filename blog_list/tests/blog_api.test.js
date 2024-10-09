@@ -126,7 +126,7 @@ describe('blog post', () => {
         return blog.title === "Test blog"
       })
       assert('likes' in returned_blog)
-      assert(returned_blog.likes == 0)
+      assert.strictEqual(returned_blog.likes, 0)
   })
 
   test("Blog requires a title.", async () => {
@@ -172,6 +172,83 @@ describe('blog delete', () => {
     const response = await api.get('/api/blogs')
     const ids = response.body.map(r => r.id)
     assert(!ids.includes(initialBlogs[0]._id))
+  })
+})
+
+describe('blog update', async () => {
+  test('updating a blog does not create a new blog.', async () => {
+    const newBlog = {
+      author: "Test Person",
+      url: "https://google.com/",
+      likes: 0,
+    }
+    await api
+      .put(`/api/blogs/${initialBlogs[0]._id}`)
+      .send(newBlog)
+      .expect(201)
+      const response = await api.get('/api/blogs')
+      assert.strictEqual(response.body.length, 6)
+  })
+  test('updating a blog makes changes to an existing blog in the database.', async () => {
+    const newBlog = {
+      title: "Test blog",
+      author: "Test Person",
+      url: "https://google.com/",
+      likes: 100,
+    }
+    await api
+      .put(`/api/blogs/${initialBlogs[0]._id}`)
+      .send(newBlog)
+      .expect(201)
+
+      const response = await api.get('/api/blogs')
+      const titles = response.body.map(r => r.title)
+      const authors = response.body.map(r => r.author)
+      const urls = response.body.map(r => r.url)
+      const likes = response.body.map(r => r.likes)
+      assert(titles.includes('Test blog'))
+      assert(authors.includes('Test Person'))
+      assert(urls.includes('https://google.com/'))
+      assert(likes.includes(100))
+  })
+  test('the correct blog is updated.', async () => {
+    const newBlog = {
+      title: "Test blog",
+      author: "Test Person",
+      url: "https://google.com/",
+      likes: 100,
+    }
+    await api
+      .put(`/api/blogs/${initialBlogs[0]._id}`)
+      .send(newBlog)
+      .expect(201)
+
+      const response = await api.get('/api/blogs')
+      const returned_blog = response.body.find(blog => {
+        return blog.id === initialBlogs[0]._id
+      })
+      
+      assert.strictEqual(returned_blog.title, newBlog.title)
+      assert.strictEqual(returned_blog.author, newBlog.author)
+      assert.strictEqual(returned_blog.url, newBlog.url)
+      assert.strictEqual(returned_blog.likes, newBlog.likes)
+  })
+  test('Leavinbg a blog field empty does not update the field.', async () => {
+    const newBlog = {}
+    await api
+      .put(`/api/blogs/${initialBlogs[0]._id}`)
+      .send(newBlog)
+      .expect(201)
+
+      const response = await api.get('/api/blogs')
+      const returned_blog = response.body.find(blog => {
+        return blog.id === initialBlogs[0]._id
+      })
+      
+      assert.strictEqual(returned_blog.title, initialBlogs[0].title)
+      assert.strictEqual(returned_blog.author, initialBlogs[0].author)
+      assert.strictEqual(returned_blog.url, initialBlogs[0].url)
+      assert.strictEqual(returned_blog.likes, initialBlogs[0].likes)
   })
 })
 after(async () => {
