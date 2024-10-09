@@ -1,4 +1,4 @@
-const { test, after, beforeEach} = require('node:test')
+const { test, after, beforeEach, describe} = require('node:test')
 const mongoose = require('mongoose')
 const assert = require('node:assert')
 const supertest = require('supertest')
@@ -65,89 +65,114 @@ beforeEach(async () => {
   }
 })
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+describe('blog get', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
 
-test('there are six blogs', async () => {
-  const response = await api.get('/api/blogs')
-  assert.strictEqual(response.body.length, 6)
-})
-
-test("Blog contains 'id'.", async () => {
-  const response = await api.get('/api/blogs')
-  assert('id' in response.body[0])
-})
-
-test("Blog does not contain '_id'.", async () => {
-  const response = await api.get('/api/blogs')
-  assert(!('_id' in response.body[0]))
-})
-
-test("New blog can be posted.", async () => {
-  const newBlog = {
-    title: "Test blog",
-    author: "Test Person",
-    url: "https://google.com/",
-    likes: 0,
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-  
+  test('there are six blogs', async () => {
     const response = await api.get('/api/blogs')
-    const titles = response.body.map(r => r.title)
-    assert.strictEqual(response.body.length, initialBlogs.length + 1)
-    assert(titles.includes('Test blog'))
-})
+    assert.strictEqual(response.body.length, 6)
+  })
 
-test("Likes property of blog defaults to 0 if left empty.", async () => {
-  const newBlog = {
-    title: "Test blog",
-    author: "Test Person",
-    url: "https://google.com/",
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-  
+  test("Blog contains 'id'.", async () => {
     const response = await api.get('/api/blogs')
-    const returned_blog = response.body.find(blog => {
-      return blog.title === "Test blog"
-    })
-    assert('likes' in returned_blog)
-    assert(returned_blog.likes == 0)
+    assert('id' in response.body[0])
+  })
+
+  test("Blog does not contain '_id'.", async () => {
+    const response = await api.get('/api/blogs')
+    assert(!('_id' in response.body[0]))
+  })
 })
 
-test("Blog requires a title.", async () => {
-  const newBlog = {
-    author: "Test Person",
-    url: "https://google.com/",
-    likes: 0,
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
+describe('blog post', () => {
+  test("New blog can be posted.", async () => {
+    const newBlog = {
+      title: "Test blog",
+      author: "Test Person",
+      url: "https://google.com/",
+      likes: 0,
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
+      const response = await api.get('/api/blogs')
+      const titles = response.body.map(r => r.title)
+      assert.strictEqual(response.body.length, initialBlogs.length + 1)
+      assert(titles.includes('Test blog'))
+  })
+
+  test("Likes property of blog defaults to 0 if left empty.", async () => {
+    const newBlog = {
+      title: "Test blog",
+      author: "Test Person",
+      url: "https://google.com/",
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
+      const response = await api.get('/api/blogs')
+      const returned_blog = response.body.find(blog => {
+        return blog.title === "Test blog"
+      })
+      assert('likes' in returned_blog)
+      assert(returned_blog.likes == 0)
+  })
+
+  test("Blog requires a title.", async () => {
+    const newBlog = {
+      author: "Test Person",
+      url: "https://google.com/",
+      likes: 0,
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
+
+  test("Blog requires a url.", async () => {
+    const newBlog = {
+      title: "Test blog",
+      author: "Test Person",
+      likes: 0,
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
 })
 
-test("Blog requires a url.", async () => {
-  const newBlog = {
-    title: "Test blog",
-    author: "Test Person",
-    likes: 0,
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
+describe('blog delete', () => {
+  test('delete request deletes a blog.', async () => {
+    await api
+      .delete(`/api/blogs/${initialBlogs[0]._id}`)
+      .expect(204)
+    
+    const response = await api.get('/api/blogs')
+    assert.strictEqual(response.body.length, 5)
+  })
+
+  test('delete request deletes specified blog.', async () => {
+    await api
+      .delete(`/api/blogs/${initialBlogs[0]._id}`)
+      .expect(204)
+    
+    const response = await api.get('/api/blogs')
+    const ids = response.body.map(r => r.id)
+    assert(!ids.includes(initialBlogs[0]._id))
+  })
 })
 after(async () => {
   await mongoose.connection.close()
