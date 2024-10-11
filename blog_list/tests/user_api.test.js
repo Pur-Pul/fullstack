@@ -77,6 +77,64 @@ describe('user post', () => {
         assert.strictEqual(response.body.length, initialUsers.length + 1)
         assert(titles.includes('newuser'))
     })
+
+    test("username is required", async () => {
+        let newUser = {
+            name: "new user",
+            password: 'sekret'
+        }
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
+
+    test("username has to be atleast 3 characters long", async () => {
+        let newUser = {
+            username: "ne",
+            name: "new user",
+            password: 'sekret'
+        }
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
+
+    test("username has to be unique", async () => {
+        let newUser = {
+            username: "test1",
+            name: "new user",
+            password: 'sekret'
+        }
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
+
+    test("password is required", async () => {
+        let newUser = {
+            username: "newuser",
+            name: "new user"
+        }
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
+
+    test("password has to be atleast 3 characters long", async () => {
+        let newUser = {
+            username: "newuser",
+            name: "new user",
+            password: 'se'
+        }
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
 })
 
 after(async () => {

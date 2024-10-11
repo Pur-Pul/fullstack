@@ -7,19 +7,28 @@ usersRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-usersRouter.post('/', async (request, response) => {
-  const {username, name, password} = request.body
-  const passwordHash = await bcrypt.hash(password, 10)
+usersRouter.post('/', async (request, response, next) => {
+  	const {username, name, password} = request.body
 
-  const user = new User({
-    username,
-    name,
-    passwordHash,
-  })
+	try {
+		if (password === undefined) throw {name: 'ValidationError', message: 'password is required.'}
+		if (password.length < 3) throw {name: 'ValidationError', message: 'password needs to be atleast 3 characters long.'}
 
-  const savedUser = await user.save()
+		const passwordHash = await bcrypt.hash(password, 10)
 
-  response.status(201).json(savedUser)
+		const user = new User({
+			username,
+			name,
+			passwordHash,
+		})
+
+		const existing_user = await User.findOne({ username })
+		if (existing_user) throw {name: 'ValidationError', message: 'username already exists'}
+		const savedUser = await user.save()
+		response.status(201).json(savedUser)
+	} catch(exception) {
+		next(exception)
+	}
 })
 
 module.exports = usersRouter
