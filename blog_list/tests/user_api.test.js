@@ -7,6 +7,7 @@ const app = require('../app')
 
 const api = supertest(app)
 const User = require('../models/user')
+const Blog = require('../models/blog')
 
 let initialUsers = [
     {
@@ -21,6 +22,7 @@ let initialUsers = [
     }
 ]
 beforeEach(async () => {
+    await Blog.deleteMany({})
     await User.deleteMany({})
     for (let i = 0; i < initialUsers.length; i++) {
         initialUsers[i].passwordHash = await bcrypt.hash('sekret', 10)
@@ -55,6 +57,33 @@ describe('user get', () => {
     test("User object does not contain 'password.'", async () => {
         const response = await api.get('/api/users')
         assert(!('passwordHash' in response.body[0]))
+    })
+
+    test("User object contains blogs field.", async () => {
+        const response = await api.get('/api/users')
+        assert('blogs' in response.body[0])
+    })
+
+    test("User object is populated with blogs.", async () => {
+        const creator = await User.findOne({})
+        newBlog = new Blog({
+            _id: "5a422a851b54a676234d17f7",
+            title: "React patterns",
+            author: "Michael Chan",
+            url: "https://reactpatterns.com/",
+            likes: 7,
+            __v: 0
+        })
+        const saved_blog = await newBlog.save()
+        creator.blogs = creator.blogs.concat(saved_blog._id)
+        await creator.save()
+        const response = await api.get('/api/users')
+
+        const returned_creator = response.body.find(user => {
+			return user.id === creator.id
+		})
+
+        assert.strictEqual(returned_creator.blogs[0].title, 'React patterns')
     })
 })
 
