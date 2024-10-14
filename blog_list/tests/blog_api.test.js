@@ -72,9 +72,11 @@ const initialBlogs = [
     __v: 0
   }
 ]
-let token = undefined
+let token1 = undefined
+let token2 = undefined
 
 beforeEach(async () => {
+	
 	await User.deleteMany({})
 	for (let i = 0; i < initialUsers.length; i++) {
 		initialUsers[i].passwordHash = await bcrypt.hash('sekret', 10)
@@ -82,19 +84,25 @@ beforeEach(async () => {
 		await userObject.save()
 	}
 
+	const users = await User.find({})
 	await Blog.deleteMany({})
 	for (let i = 0; i < initialBlogs.length; i++) {
 		let blogObject = new Blog(initialBlogs[i])
-		const creator = await User.findOne({})
+		const creator = users[0]
 		blogObject.creator = creator.id
 		await blogObject.save()
 	}
-	const user = await User.findOne({})
-	const userForToken = {
-		username: user.username,
-		id: user._id,
+	
+	const user1ForToken = {
+		username: users[0].username,
+		id: users[0].id,
 	}
-	token = jwt.sign(userForToken, process.env.SECRET)
+	const user2ForToken = {
+		username: users[1].username,
+		id: users[1].id,
+	}
+	token1 = jwt.sign(user1ForToken, process.env.SECRET)
+	token2 = jwt.sign(user2ForToken, process.env.SECRET)
 })
 
 describe('blog get', () => {
@@ -129,10 +137,11 @@ describe('blog post', () => {
 			url: "https://google.com/",
 			ikes: 0,
 		}
+		
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
-			.set('Authorization', 'Bearer ' + token)
+			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
@@ -165,7 +174,7 @@ describe('blog post', () => {
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
-		.set('Authorization', 'Bearer ' + token)
+		.set('Authorization', 'Bearer ' + token1)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
 		
@@ -186,7 +195,7 @@ describe('blog post', () => {
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
-		.set('Authorization', 'Bearer ' + token)
+		.set('Authorization', 'Bearer ' + token1)
 		.expect(400)
 	})
 
@@ -199,7 +208,7 @@ describe('blog post', () => {
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
-			.set('Authorization', 'Bearer ' + token)
+			.set('Authorization', 'Bearer ' + token1)
 			.expect(400)
 	})
 
@@ -213,7 +222,7 @@ describe('blog post', () => {
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
-			.set('Authorization', 'Bearer ' + token)
+			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
@@ -235,7 +244,7 @@ describe('blog post', () => {
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
-			.set('Authorization', 'Bearer ' + token)
+			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
@@ -256,7 +265,7 @@ describe('blog post', () => {
 		await api
 			.post('/api/blogs')
 			.send(newBlog)
-			.set('Authorization', 'Bearer ' + token)
+			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
@@ -264,7 +273,7 @@ describe('blog post', () => {
 		const returned_blog = response.body.find(blog => {
 			return blog.title === "Test blog"
 		})
-		const decodedToken = jwt.verify(token, process.env.SECRET)
+		const decodedToken = jwt.verify(token1, process.env.SECRET)
         const token_user = await User.findById(decodedToken.id)
 
 
@@ -281,7 +290,7 @@ describe('blog post', () => {
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
-		.set('Authorization', 'Bearer ' + token)
+		.set('Authorization', 'Bearer ' + token1)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
 		
@@ -298,6 +307,7 @@ describe('blog delete', () => {
 	test('delete request deletes a blog.', async () => {
 		await api
 		.delete(`/api/blogs/${initialBlogs[0]._id}`)
+		.set('Authorization', 'Bearer ' + token1)
 		.expect(204)
 		
 		const response = await api.get('/api/blogs')
@@ -307,11 +317,26 @@ describe('blog delete', () => {
 	test('delete request deletes specified blog.', async () => {
 		await api
 		.delete(`/api/blogs/${initialBlogs[0]._id}`)
+		.set('Authorization', 'Bearer ' + token1)
 		.expect(204)
 		
 		const response = await api.get('/api/blogs')
 		const ids = response.body.map(r => r.id)
 		assert(!ids.includes(initialBlogs[0]._id))
+	})
+
+	test('delete request fails without token.', async () => {
+		await api
+			.delete(`/api/blogs/${initialBlogs[0]._id}`)
+			.expect(401)
+	})
+
+	test('delete request fails with incorrect token.', async () => {
+		await api
+		.delete(`/api/blogs/${initialBlogs[0]._id}`)
+		.set('Authorization', 'Bearer ' + token2)
+		.expect(403)
+		
 	})
 })
 
