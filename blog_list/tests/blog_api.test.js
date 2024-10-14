@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const assert = require('node:assert')
 const supertest = require('supertest')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const app = require('../app')
 
 const api = supertest(app)
@@ -11,14 +12,14 @@ const User = require('../models/user')
 const { log } = require('node:console')
 let initialUsers = [
   {
-      username: "test1",
-      name: "Test1 Person1",
-      passwordHash: null
+      	username: "test1",
+      	name: "Test1 Person1",
+      	passwordHash: null
   },
   {
-      username: "test2",
-      name: "Test2 Person2",
-      passwordHash: null
+      	username: "test2",
+      	name: "Test2 Person2",
+      	passwordHash: null
   }
 ]
 const initialBlogs = [
@@ -71,7 +72,7 @@ const initialBlogs = [
     __v: 0
   }
 ]
-
+let token = undefined
 
 beforeEach(async () => {
 	await User.deleteMany({})
@@ -88,14 +89,20 @@ beforeEach(async () => {
 		blogObject.creator = creator.id
 		await blogObject.save()
 	}
+	const user = await User.findOne({})
+	const userForToken = {
+		username: user.username,
+		id: user._id,
+	}
+	token = jwt.sign(userForToken, process.env.SECRET)
 })
 
 describe('blog get', () => {
 	test('blogs are returned as json', async () => {
 		await api
-		.get('/api/blogs')
-		.expect(200)
-		.expect('Content-Type', /application\/json/)
+			.get('/api/blogs')
+			.expect(200)
+			.expect('Content-Type', /application\/json/)
 	})
 
 	test('there are six blogs', async () => {
@@ -117,16 +124,17 @@ describe('blog get', () => {
 describe('blog post', () => {
 	test("New blog can be posted.", async () => {
 		const newBlog = {
-		title: "Test blog",
-		author: "Test Person",
-		url: "https://google.com/",
-		likes: 0,
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			ikes: 0,
 		}
 		await api
-		.post('/api/blogs')
-		.send(newBlog)
-		.expect(201)
-		.expect('Content-Type', /application\/json/)
+			.post('/api/blogs')
+			.send(newBlog)
+			.set('Authorization', 'Bearer ' + token)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
 		
 		const response = await api.get('/api/blogs')
 		const titles = response.body.map(r => r.title)
@@ -134,15 +142,30 @@ describe('blog post', () => {
 		assert(titles.includes('Test blog'))
 	})
 
+	test("Blog post request fails if token is missing.", async () => {
+		const newBlog = {
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			ikes: 0,
+		}
+		await api
+			.post('/api/blogs')
+			.send(newBlog)
+			.expect(401)
+			.expect('Content-Type', /application\/json/)
+	})
+
 	test("Likes property of blog defaults to 0 if left empty.", async () => {
 		const newBlog = {
-		title: "Test blog",
-		author: "Test Person",
-		url: "https://google.com/",
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
 		}
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
+		.set('Authorization', 'Bearer ' + token)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
 		
@@ -163,6 +186,7 @@ describe('blog post', () => {
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
+		.set('Authorization', 'Bearer ' + token)
 		.expect(400)
 	})
 
@@ -173,9 +197,10 @@ describe('blog post', () => {
 		likes: 0,
 		}
 		await api
-		.post('/api/blogs')
-		.send(newBlog)
-		.expect(400)
+			.post('/api/blogs')
+			.send(newBlog)
+			.set('Authorization', 'Bearer ' + token)
+			.expect(400)
 	})
 
 	test("Created blog object contains a creator field", async () => {
@@ -186,10 +211,11 @@ describe('blog post', () => {
 		likes: 0
 		}
 		await api
-		.post('/api/blogs')
-		.send(newBlog)
-		.expect(201)
-		.expect('Content-Type', /application\/json/)
+			.post('/api/blogs')
+			.send(newBlog)
+			.set('Authorization', 'Bearer ' + token)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
 		
 		const response = await api.get('/api/blogs')
 		const returned_blog = response.body.find(blog => {
@@ -207,10 +233,11 @@ describe('blog post', () => {
 		likes: 0
 		}
 		await api
-		.post('/api/blogs')
-		.send(newBlog)
-		.expect(201)
-		.expect('Content-Type', /application\/json/)
+			.post('/api/blogs')
+			.send(newBlog)
+			.set('Authorization', 'Bearer ' + token)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
 		
 		const response = await api.get('/api/blogs')
 		const returned_blog = response.body.find(blog => {
@@ -219,16 +246,42 @@ describe('blog post', () => {
 		assert('username' in returned_blog.creator)
 	})
 
+	test("Creator is the user identified by the token.", async () => {
+		const newBlog = {
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 0
+		}
+		await api
+			.post('/api/blogs')
+			.send(newBlog)
+			.set('Authorization', 'Bearer ' + token)
+			.expect(201)
+			.expect('Content-Type', /application\/json/)
+		
+		const response = await api.get('/api/blogs')
+		const returned_blog = response.body.find(blog => {
+			return blog.title === "Test blog"
+		})
+		const decodedToken = jwt.verify(token, process.env.SECRET)
+        const token_user = await User.findById(decodedToken.id)
+
+
+		assert.strictEqual(returned_blog.creator.username, token_user.username)
+	})
+
 	test("User flagged as creator contains a new blog.", async () => {
 		const newBlog = {
-		title: "Test blog",
-		author: "Test Person",
-		url: "https://google.com/",
-		likes: 0
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 0
 		}
 		await api
 		.post('/api/blogs')
 		.send(newBlog)
+		.set('Authorization', 'Bearer ' + token)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
 		

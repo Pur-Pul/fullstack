@@ -43,6 +43,19 @@ describe("login post", () => {
             .expect(200)
             .expect('Content-Type', /application\/json/)
     })
+
+    test('Successful login response includes token.', async () => {
+        const credentials = {
+            username: 'test1',
+            password: 'pass'
+        }
+        const response = await api
+            .post('/api/login')
+            .send(credentials)
+        
+        assert(response.body.token)
+    })
+
     test('login request fails with incorrect username and returns an error.', async () => {
         const credentials = {
             username: 'incorrect',

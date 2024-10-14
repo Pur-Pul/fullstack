@@ -1,6 +1,14 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const getTokenFrom = request => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '')
+    }
+    return null
+}
 
 blogsRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({}).populate('creator')
@@ -8,10 +16,16 @@ blogsRouter.get('/', async (request, response) => {
 })
   
 blogsRouter.post('/', async (request, response, next) => {
-    let blog = new Blog(request.body)
-    const creator = await User.findOne({})
-    blog.creator = creator.id
     try {
+        const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+        if (!decodedToken.id) {
+            return response.status(401).json({ error: 'token invalid' })
+        }
+        const creator = await User.findById(decodedToken.id)
+
+        let blog = new Blog(request.body)
+        blog.creator = creator.id
+    
         const saved_blog = await blog.save()
         creator.blogs = creator.blogs.concat(saved_blog._id)
         await creator.save()
