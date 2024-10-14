@@ -32,7 +32,7 @@ beforeEach(async () => {
 })
 
 describe('user get', () => {
-    test('userss are returned as json', async () => {
+    test('users are returned as json', async () => {
         await api
             .get('/api/users')
             .expect(200)
