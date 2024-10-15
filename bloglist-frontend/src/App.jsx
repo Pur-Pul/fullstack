@@ -2,7 +2,20 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import './index.css'
 
+const Notification = ({message}) => {
+	if (message === null) {
+	  	return null
+	} 
+  
+	return (
+	  	<div className={message.type}>
+			{message.text}
+	  	</div>
+	)
+}
+  
 const LoginForm = (props) => {
 	return (
 		<div>
@@ -16,8 +29,8 @@ const LoginForm = (props) => {
 						name="Username"
 						onChange={({ target }) => props.setUsername(target.value)}
 					/>
-					</div>
-					<div>
+				</div>
+				<div>
 					password
 						<input
 						type="password"
@@ -80,8 +93,6 @@ const Blogs = (props) => {
 	)
 }
 
-
-
 const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [username, setUsername] = useState('')
@@ -91,6 +102,8 @@ const App = () => {
 	const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
+
+	const [message, setMessage] = useState(null)
 
 	useEffect(() => {
 		blogService.getAll().then(blogs =>
@@ -118,10 +131,14 @@ const App = () => {
 				'loggedUser', JSON.stringify(returned_user)
 			) 
 			setUser(returned_user)
+			blogService.setToken(returned_user.token)
 			setUsername('')
 			setPassword('')
 		} catch (exception) {
-			console.log('wrong credentials');
+			setMessage({text : exception.response.data.error, type : "error"})
+			setTimeout(() => {
+				setMessage(null)
+			}, 5000)
 		}
 	}
 
@@ -143,28 +160,32 @@ const App = () => {
 			setTitle('')
 			setAuthor('')
 			setUrl('')
+			setMessage({text : `a new blog ${returned_blog.title} by ${returned_blog.author} added`, type : "message"})
+			setTimeout(() => {
+				setMessage(null)
+			}, 5000)
 		} catch (exception) {
-			console.log(exception);
+			setMessage({text : exception.response.data.error, type : "error"})
+			setTimeout(() => {
+				setMessage(null)
+			}, 5000)
 		}
 	}
 
-	if (user === null) {
-		return (
-			<LoginForm loginHandler = {loginHandler} setUsername = {setUsername} setPassword = {setPassword}/>
-		)
-	} else {
-		return (
-			<div>
-				<h2>blogs</h2>
-				<p>
-					{user.name} logged in 
+	return (
+		<div>
+			<Notification message={message} />
+			{user === null ? <LoginForm loginHandler = {loginHandler} setUsername = {setUsername} setPassword = {setPassword}/> :
+				<div>
+					<p>{user.name} logged-in
 					<button onClick={logoutHandler}>logout</button>
-				</p>
-				<Blogs blogs = {blogs}/>
-				<BlogForm blogHandler = {blogHandler} setTitle = {setTitle} setAuthor = {setAuthor} setUrl= {setUrl} />
-			</div>
-		)
-	}
+					</p>
+					<Blogs blogs = {blogs}/>
+					<BlogForm blogHandler = {blogHandler} setTitle = {setTitle} setAuthor = {setAuthor} setUrl= {setUrl} />
+				</div>
+			}
+		</div>
+	)
 }
 
 export default App
