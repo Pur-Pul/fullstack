@@ -28,43 +28,13 @@ const Blogs = (props) => {
 	)
 }
 
-const CreateBlog = ({
-	blogFormVisible,
-	setBlogFormVisible,
-	blogHandler,
-	setTitle,
-	setAuthor,
-	setUrl
-}) => {
-	const hideWhenVisible = { display: blogFormVisible ? 'none' : '' }
-    const showWhenVisible = { display: blogFormVisible ? '' : 'none' }
-
-	return (
-		<div>
-			<div style={hideWhenVisible}>
-				<button onClick={() => setBlogFormVisible(true)}>new blog</button>
-			</div>
-			<div style={showWhenVisible}>
-				<BlogForm blogHandler = {blogHandler} setTitle = {setTitle} setAuthor = {setAuthor} setUrl= {setUrl}/>
-			</div>
-		</div>
-	)
-
-}
-
 const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const [user, setUser] = useState(null)
-
-	const [title, setTitle] = useState('')
-	const [author, setAuthor] = useState('')
-	const [url, setUrl] = useState('')
-
 	const [message, setMessage] = useState(null)
 
-	const [blogFormVisible, setBlogFormVisible] = useState(false)
 
 	useEffect(() => {
 		blogService.getAll().then(blogs =>
@@ -81,20 +51,15 @@ const App = () => {
 		}
 	  }, [])
 
-	const loginHandler = async (event) => {
-		event.preventDefault()
-		console.log('logging in with', username, password)
+	const performLogin = async (credentials) => {
+		console.log('logging in with', credentials.username, credentials.password)
 		try {
-			const returned_user = await loginService.login({
-				username, password
-			})
+			const response = await loginService.login(credentials)
 			window.localStorage.setItem(
-				'loggedUser', JSON.stringify(returned_user)
+				'loggedUser', JSON.stringify(response)
 			) 
-			setUser(returned_user)
-			blogService.setToken(returned_user.token)
-			setUsername('')
-			setPassword('')
+			setUser(response)
+			blogService.setToken(response.token)
 		} catch (exception) {
 			setMessage({text : exception.response.data.error, type : "error"})
 			setTimeout(() => {
@@ -109,24 +74,20 @@ const App = () => {
 		setUser(null)
 	}
 
-	const blogHandler = async (event) => {
-		event.preventDefault()
+	const createBlog = async (blogObject) => {
 		try {
-			const returned_blog = await blogService.post({
-				title, author, url
-			})
+			const response = await blogService.post(blogObject)
 			const new_blogs = blogs.slice()
-			new_blogs.push(returned_blog)
+			new_blogs.push(response)
 			setBlogs(new_blogs)
-			setTitle('')
-			setAuthor('')
-			setUrl('')
-			setBlogFormVisible(false)
-			setMessage({text : `a new blog ${returned_blog.title} by ${returned_blog.author} added`, type : "message"})
+
+			setMessage({text : `a new blog ${response.title} by ${response.author} added`, type : "message"})
 			setTimeout(() => {
 				setMessage(null)
 			}, 5000)
 		} catch (exception) {
+			console.log(exception);
+			
 			setMessage({text : exception.response.data.error, type : "error"})
 			setTimeout(() => {
 				setMessage(null)
@@ -137,12 +98,12 @@ const App = () => {
 	return (
 		<div>
 			<Notification message={message} />
-			{user === null ? <LoginForm loginHandler = {loginHandler} setUsername = {setUsername} setPassword = {setPassword}/> :
+			{user === null ? <LoginForm performLogin={performLogin}/> :
 				<div>
 					<p>{user.name} logged-in
 					<button onClick={logoutHandler}>logout</button>
 					</p>
-					<CreateBlog blogFormVisible={blogFormVisible} setBlogFormVisible={setBlogFormVisible} blogHandler = {blogHandler} setTitle = {setTitle} setAuthor = {setAuthor} setUrl= {setUrl} />
+					<BlogForm createBlog = {createBlog}/>
 					<Blogs blogs = {blogs}/>
 				</div>
 			}
