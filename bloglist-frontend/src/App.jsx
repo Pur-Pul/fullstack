@@ -22,7 +22,7 @@ const Blogs = (props) => {
 	return (
 		<div>
 			{props.blogs.map(blog =>
-				<Blog key={blog.id} blog={blog} />
+				<Blog key={blog.id} blog={blog} performLike={props.performLike}/>
 			)}
 		</div>
 	)
@@ -93,6 +93,28 @@ const App = () => {
 		}
 	}
 
+	const performLike = async (id) => {
+		try {
+			let blog = await blogService.get(id)
+			const response = await blogService.update({likes : blog.likes + 1}, id)
+
+			let new_blogs = blogs.slice()
+			new_blogs[new_blogs.findIndex((blog) => blog.id === id)] = response
+			setBlogs(new_blogs)
+			setMessage({text : `Blog ${blog.title} liked.`, type : "message"})
+			setTimeout(() => {
+				setMessage(null)
+			}, 5000)
+		} catch (exception) {
+			console.log(exception);
+			
+			setMessage({text : exception.response.data.error, type : "error"})
+			setTimeout(() => {
+				setMessage(null)
+			}, 5000)
+		}
+	}
+
 	return (
 		<div>
 			<Notification message={message} />
@@ -102,7 +124,7 @@ const App = () => {
 					<button onClick={logoutHandler}>logout</button>
 					</p>
 					<BlogForm createBlog = {createBlog}/>
-					<Blogs blogs = {blogs}/>
+					<Blogs blogs = {blogs} performLike = {performLike}/>
 				</div>
 			}
 		</div>

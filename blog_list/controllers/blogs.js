@@ -8,6 +8,12 @@ blogsRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({}).populate('creator')
     response.json(blogs)
 })
+
+blogsRouter.get('/:id', async (request, response) => {
+    const id = request.params.id
+    const blog = await Blog.findById(id).populate('creator')
+    response.json(blog)
+})
   
 blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
     try {
@@ -16,7 +22,9 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response, next) 
         let blog = new Blog(request.body)
         blog.creator = creator.id
     
-        const saved_blog = await blog.save()
+        let saved_blog = await blog.save()
+        saved_blog = await saved_blog.populate('creator')
+
         creator.blogs = creator.blogs.concat(saved_blog._id)
         await creator.save()
         response.status(201).json(saved_blog)
@@ -50,7 +58,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
     const id = request.params.id
     const blog = request.body
     try {
-        const result = await Blog.findByIdAndUpdate(id, blog, { new: true, runValidators: true, context: 'query' })
+        const result = await Blog.findByIdAndUpdate(id, blog, { new: true, runValidators: true, context: 'query' }).populate('creator')
         response.status(201).json(result)
     } catch(exception) {
         next(exception)

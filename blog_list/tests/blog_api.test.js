@@ -9,7 +9,7 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const { log } = require('node:console')
+
 let initialUsers = [
   {
       	username: "test1",
@@ -127,6 +127,16 @@ describe('blog get', () => {
 		const response = await api.get('/api/blogs')
 		assert(!('_id' in response.body[0]))
 	})
+
+	test("Blog has a creator.", async () => {
+		const response = await api.get('/api/blogs')
+		assert('creator' in response.body[0])
+	})
+
+	test("Blog creator field is populated with a user.", async () => {
+		const response = await api.get('/api/blogs')
+		assert('username' in response.body[0].creator)
+	})
 })
 
 describe('blog post', () => {
@@ -219,19 +229,14 @@ describe('blog post', () => {
 		url: "https://google.com/",
 		likes: 0
 		}
-		await api
+		const response = await api
 			.post('/api/blogs')
 			.send(newBlog)
 			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
-		const response = await api.get('/api/blogs')
-		const returned_blog = response.body.find(blog => {
-			return blog.title === "Test blog"
-		})
-		
-		assert('creator' in returned_blog)
+		assert('creator' in response.body)
 	})
 
 	test("Creator field is populated with a user.", async () => {
@@ -241,18 +246,14 @@ describe('blog post', () => {
 		url: "https://google.com/",
 		likes: 0
 		}
-		await api
+		const response = await api
 			.post('/api/blogs')
 			.send(newBlog)
 			.set('Authorization', 'Bearer ' + token1)
 			.expect(201)
 			.expect('Content-Type', /application\/json/)
 		
-		const response = await api.get('/api/blogs')
-		const returned_blog = response.body.find(blog => {
-			return blog.title === "Test blog"
-		})
-		assert('username' in returned_blog.creator)
+		assert('username' in response.body.creator)
 	})
 
 	test("Creator is the user identified by the token.", async () => {
@@ -343,28 +344,30 @@ describe('blog delete', () => {
 describe('blog update', async () => {
 	test('updating a blog does not create a new blog.', async () => {
 		const newBlog = {
-		author: "Test Person",
-		url: "https://google.com/",
-		likes: 0,
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 0,
 		}
 		await api
-		.put(`/api/blogs/${initialBlogs[0]._id}`)
-		.send(newBlog)
-		.expect(201)
+			.put(`/api/blogs/${initialBlogs[0]._id}`)
+			.send(newBlog)
+			.expect(201)
+
 		const response = await api.get('/api/blogs')
 		assert.strictEqual(response.body.length, 6)
 	})
+
 	test('updating a blog makes changes to an existing blog in the database.', async () => {
 		const newBlog = {
-		title: "Test blog",
-		author: "Test Person",
-		url: "https://google.com/",
-		likes: 100,
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 100,
 		}
 		await api
-		.put(`/api/blogs/${initialBlogs[0]._id}`)
-		.send(newBlog)
-		.expect(201)
+			.put(`/api/blogs/${initialBlogs[0]._id}`)
+			.send(newBlog)
+			.expect(201)
 
 		const response = await api.get('/api/blogs')
 		const titles = response.body.map(r => r.title)
@@ -376,17 +379,18 @@ describe('blog update', async () => {
 		assert(urls.includes('https://google.com/'))
 		assert(likes.includes(100))
 	})
+
 	test('the correct blog is updated.', async () => {
 		const newBlog = {
-		title: "Test blog",
-		author: "Test Person",
-		url: "https://google.com/",
-		likes: 100,
+			title: "Test blog",
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 100,
 		}
 		await api
-		.put(`/api/blogs/${initialBlogs[0]._id}`)
-		.send(newBlog)
-		.expect(201)
+			.put(`/api/blogs/${initialBlogs[0]._id}`)
+			.send(newBlog)
+			.expect(201)
 
 		const response = await api.get('/api/blogs')
 		const returned_blog = response.body.find(blog => {
@@ -398,12 +402,13 @@ describe('blog update', async () => {
 		assert.strictEqual(returned_blog.url, newBlog.url)
 		assert.strictEqual(returned_blog.likes, newBlog.likes)
 	})
+
 	test('Leaving a blog field empty does not update the field.', async () => {
 		const newBlog = {}
 		await api
-		.put(`/api/blogs/${initialBlogs[0]._id}`)
-		.send(newBlog)
-		.expect(201)
+			.put(`/api/blogs/${initialBlogs[0]._id}`)
+			.send(newBlog)
+			.expect(201)
 
 		const response = await api.get('/api/blogs')
 		const returned_blog = response.body.find(blog => {
@@ -414,6 +419,20 @@ describe('blog update', async () => {
 		assert.strictEqual(returned_blog.author, initialBlogs[0].author)
 		assert.strictEqual(returned_blog.url, initialBlogs[0].url)
 		assert.strictEqual(returned_blog.likes, initialBlogs[0].likes)
+	})
+
+	test('Updated blog creator field is populated by a user.', async () => {
+		const newBlog = {
+			author: "Test Person",
+			url: "https://google.com/",
+			likes: 0,
+		}
+		const response = await api
+			.put(`/api/blogs/${initialBlogs[0]._id}`)
+			.send(newBlog)
+			.expect(201)
+
+		assert('username' in response.body.creator)
 	})
 })
 after(async () => {
