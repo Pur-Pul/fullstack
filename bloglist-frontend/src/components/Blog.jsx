@@ -32,11 +32,11 @@ const Blog = ({ blog, performLike, performRemove}) => {
 	const showIfCreator = {	display: (user.id == blog.creator.id) ? '' : 'none'}
 	
 	return (
-		<div style={blogStyle}>
-			<div style={hideWhenVisible}>
+		<div className='blog' style={blogStyle}>
+			<div style={hideWhenVisible} data-testid="collapsed">
 				{blog.title} {blog.author} <button onClick={() => setExpand(true)}>view</button>
 			</div>
-			<div style={showWhenVisible}>
+			<div style={showWhenVisible} data-testid="expanded">
 				{blog.title} {blog.author} <button onClick={() => setExpand(false)}>hide</button><br/>
 				<a href={blog.url}>{blog.url}</a><br/> 
 				Likes: {blog.likes} <button onClick={likeHandler}>like</button><br/> 
