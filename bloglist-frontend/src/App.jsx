@@ -35,9 +35,12 @@ const App = () => {
 
 
 	useEffect(() => {
-		blogService.getAll().then(blogs =>
-			setBlogs( blogs )
-		)  
+		(async () => {
+			let response = await blogService.getAll()
+			response.sort((blog1, blog2) => blog2.likes - blog1.likes)
+			setBlogs(response)
+		})();
+		
 	}, [])
 
 	useEffect(() => {
