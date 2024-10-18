@@ -15,7 +15,7 @@ const test_blog = {
 }
 
 
-test('renders content', () => {
+test('renders blog title', () => {
 	render(<Blog blog={test_blog} />)
 	const elements = screen.getAllByText(/Test blog/)
 	expect(elements).toBeDefined()
@@ -53,7 +53,7 @@ test("collapsed blog does not contain url or likes.", () => {
 	expect(element).not.toHaveTextContent('Likes:')
 })
 
-test("blog has a 'view' button.", async () => {
+test("blog has a 'view' button.", () => {
 	render(<Blog blog={test_blog} />)
 	const button = screen.getByText('view')
 	expect(button).toBeDefined()
@@ -88,4 +88,31 @@ test("expanded blog contains title, author, url and likes after clicking the 'vi
 	expect(element).toHaveTextContent('Test Author')
 	expect(element).toHaveTextContent('www.testblog.com')
 	expect(element).toHaveTextContent('Likes: 10')
+})
+
+test("blog contains like button.", () => {
+	render(<Blog blog={test_blog} />)
+	const button = screen.getByText('like')
+	expect(button).toBeDefined()
+})
+
+test("pressing like button calls the like event handler once.", async () => {
+	const mockHandler = vi.fn()
+	render(<Blog blog={test_blog} performLike={mockHandler}/>)
+	const user = userEvent.setup()
+	const button = screen.getByText('like')
+	await user.click(button)
+
+	expect(mockHandler.mock.calls).toHaveLength(1)
+})
+
+test("pressing like button twice calls the like event handler twice.", async () => {
+	const mockHandler = vi.fn()
+	render(<Blog blog={test_blog} performLike={mockHandler}/>)
+	const user = userEvent.setup()
+	const button = screen.getByText('like')
+	await user.click(button)
+	await user.click(button)
+
+	expect(mockHandler.mock.calls).toHaveLength(2)
 })
