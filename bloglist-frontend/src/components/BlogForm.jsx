@@ -1,11 +1,12 @@
-import { useState, forwardRef, useImperativeHandle } from "react"
+import { useState, forwardRef, useImperativeHandle } from 'react'
+import PropTypes from 'prop-types'
 
 const BlogForm = forwardRef(({
     createBlog
 }, refs) => {
     const [title, setTitle] = useState('')
-	const [author, setAuthor] = useState('')
-	const [url, setUrl] = useState('')
+    const [author, setAuthor] = useState('')
+    const [url, setUrl] = useState('')
     const [formVisible, setFormVisible] = useState(false)
 
     const resetForm = () => {
@@ -14,7 +15,7 @@ const BlogForm = forwardRef(({
         setUrl('')
         setFormVisible(false)
     }
-    
+
     useImperativeHandle(refs, () => {
         return {
             resetForm
@@ -22,18 +23,18 @@ const BlogForm = forwardRef(({
     })
 
     const blogHandler = (event) => {
-		event.preventDefault()
-		createBlog({
+        event.preventDefault()
+        createBlog({
             title,
             author,
             url
         })
-	}
+    }
 
     const hideWhenVisible = { display: formVisible ? 'none' : '' }
     const showWhenVisible = { display: formVisible ? '' : 'none' }
 
-	return (
+    return (
         <div>
             <div style={hideWhenVisible}>
                 <button onClick={() => setFormVisible(true)}>new blog</button>
@@ -43,7 +44,7 @@ const BlogForm = forwardRef(({
                 <form onSubmit={blogHandler}>
                     <div>
                         title
-                            <input
+                        <input
                             type="text"
                             value={title}
                             name="title"
@@ -52,7 +53,7 @@ const BlogForm = forwardRef(({
                     </div>
                     <div>
                         author
-                            <input
+                        <input
                             type="text"
                             value={author}
                             name="author"
@@ -61,7 +62,7 @@ const BlogForm = forwardRef(({
                     </div>
                     <div>
                         url
-                            <input
+                        <input
                             type="text"
                             value={url}
                             name="url"
@@ -72,7 +73,13 @@ const BlogForm = forwardRef(({
                 </form>
             </div>
         </div>
-	)
+    )
 })
+
+BlogForm.displayName= 'BlogForm'
+
+BlogForm.propTypes = {
+    createBlog: PropTypes.func.isRequired
+}
 
 export default BlogForm
