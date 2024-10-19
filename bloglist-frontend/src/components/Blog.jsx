@@ -1,4 +1,5 @@
 import { useState } from "react"
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, performLike, performRemove}) => {
 	const [expand, setExpand] = useState(false)

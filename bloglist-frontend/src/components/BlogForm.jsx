@@ -1,12 +1,25 @@
-import { useState } from "react"
+import { useState, forwardRef, useImperativeHandle } from "react"
 
-const BlogForm = ({
+const BlogForm = forwardRef(({
     createBlog
-}) => {
+}, refs) => {
     const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
     const [formVisible, setFormVisible] = useState(false)
+
+    const resetForm = () => {
+        setTitle('')
+        setAuthor('')
+        setUrl('')
+        setFormVisible(false)
+    }
+    
+    useImperativeHandle(refs, () => {
+        return {
+            resetForm
+        }
+    })
 
     const blogHandler = (event) => {
 		event.preventDefault()
@@ -15,11 +28,6 @@ const BlogForm = ({
             author,
             url
         })
-        
-        setTitle('')
-        setAuthor('')
-        setUrl('')
-        setFormVisible(false)
 	}
 
     const hideWhenVisible = { display: formVisible ? 'none' : '' }
@@ -65,6 +73,6 @@ const BlogForm = ({
             </div>
         </div>
 	)
-}
+})
 
 export default BlogForm

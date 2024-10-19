@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef} from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/Login'
@@ -32,6 +32,7 @@ const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [user, setUser] = useState(null)
 	const [message, setMessage] = useState(null)
+	const blogFormRef = useRef()
 
 
 	useEffect(() => {
@@ -81,6 +82,7 @@ const App = () => {
 			const new_blogs = blogs.slice()
 			new_blogs.push(response)
 			setBlogs(new_blogs)
+			blogFormRef.current.resetForm()
 
 			setMessage({text : `a new blog ${response.title} by ${response.author} added`, type : "message"})
 			setTimeout(() => {
@@ -149,7 +151,7 @@ const App = () => {
 					<p>{user.name} logged-in
 					<button onClick={logoutHandler}>logout</button>
 					</p>
-					<BlogForm createBlog = {createBlog}/>
+					<BlogForm createBlog = {createBlog} ref = {blogFormRef}/>
 					<Blogs blogs = {blogs} performLike = {performLike} performRemove={performRemove}/>
 				</div>
 			}
