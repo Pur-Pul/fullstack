@@ -1,4 +1,7 @@
 const { test, expect, beforeEach, describe, beforeAll } = require('@playwright/test')
+const { loginWith, createNewBlog } = require('./helper')
+const blog = require('../../blog_list/models/blog')
+const { log } = require('console')
 
 describe('Blog app', () => {
     beforeEach(async ({ page, request }) => {
@@ -15,7 +18,6 @@ describe('Blog app', () => {
     })
 
     test('Login form is shown', async ({ page }) => {
-
         const locator = await page.getByText('login to application')
         await expect(locator).toBeVisible()
         const username_field = await page.locator('input[name="Username"]')
@@ -27,24 +29,18 @@ describe('Blog app', () => {
     })
     describe('Login', () => {
         test('succeeds with correct credentials', async ({ page }) => {
-            await page.locator('input[name="Username"]').fill('test')
-            await page.locator('input[name="Password"]').fill('pass')
-            await page.getByRole('button', { name: 'login' }).click()
+            await loginWith(page, 'test', 'pass')
             await expect(page.getByText('Test User logged-in')).toBeVisible()
         })
     
         test('fails with wrong credentials', async ({ page }) => {
-            await page.locator('input[name="Username"]').fill('test')
-            await page.locator('input[name="Password"]').fill('incorrect')
-            await page.getByRole('button', { name: 'login' }).click()
+            await loginWith(page, 'test', 'incorrect')
             await expect(page.getByText('Test User logged-in')).not.toBeVisible()
         })
     })
     describe('When logged in', () => {
         beforeEach(async ({ page }) => {
-            await page.locator('input[name="Username"]').fill('test')
-            await page.locator('input[name="Password"]').fill('pass')
-            await page.getByRole('button', { name: 'login' }).click()
+            await loginWith(page, 'test', 'pass')
         })
         
         test('new blog button is visible.', async ({ page }) => {
@@ -86,10 +82,7 @@ describe('Blog app', () => {
 
         test('new blog is visible in blog div after successful creation.', async ({ page }) => {
             await page.getByRole('button', { name: 'new blog' }).click()
-            await page.locator('input[name="title"]').fill('a new blog')
-            await page.locator('input[name="author"]').fill('new author')
-            await page.locator('input[name="url"]').fill('new url')
-            page.getByRole('button', { name: 'create' }).click()
+            await createNewBlog(page, 'a new blog', 'new author', 'new url')
             const blog = await page.locator('.blog')
                 
             await expect(blog).toBeVisible()
@@ -98,10 +91,7 @@ describe('Blog app', () => {
             let blog
             beforeEach(async ({ page }) => {
                 await page.getByRole('button', { name: 'new blog' }).click()
-                await page.locator('input[name="title"]').fill('a new blog')
-                await page.locator('input[name="author"]').fill('new author')
-                await page.locator('input[name="url"]').fill('new url')
-                await page.getByRole('button', { name: 'create' }).click()
+                await createNewBlog(page, 'a new blog', 'new author', 'new url')
                 blog = await page.locator('.blog')
             })
             test('blog view button is visible.', async ({ page }) => {
@@ -165,6 +155,53 @@ describe('Blog app', () => {
                     await page.locator('.blog').getByRole('button', { name: 'view' }).click()
                     expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible()
                 })
+            })
+        })
+
+        describe('After creating and liking multiple blogs', () => {
+            beforeEach(async ({ page, request}) => {
+                const number_of_blogs = 5
+                const number_of_likes = [3,6,9,3,5]
+
+                for (let i = 1; i <= number_of_blogs; i++) {
+                    await page.getByRole('button', { name: 'new blog' }).click()
+                    await createNewBlog(page, `a new blog ${i}`, `new author ${i}`, `new url ${i}`)
+
+                    const blog = await page
+                        .locator('.blog')
+                        .filter({ has: page.getByText(new RegExp(String.raw`a new blog ${i}`, "g")) })
+
+                    await blog.getByTestId('collapsed').getByRole('button', { name:'view' }).click()
+                    const like_button = await blog.getByTestId('expanded').getByRole('button', { name:'like' })
+                    for (let j = 0; j < number_of_likes[i-1]; j++) {
+                        await like_button.click()
+                        await new Promise(r => setTimeout(r, 20));
+                    }
+                }
+                await page.goto('http://localhost:5173')
+                //await new Promise(r => setTimeout(r, 20));
+                await page.waitForSelector('.blog')
+            })
+            test('blogs are sorted by their number of likes in a descending order', async ({ page }) => {
+                let likes = [];
+                for (const blog of await page.locator('.blog').all()) {
+                    await blog.getByRole('button', { name:'view' }).click()
+                    
+                    const innerText = await blog.innerText()
+                    const splittext = innerText.split('Likes: ')[1]
+                    let like_string = ''
+                    for (let i = 0; i < splittext.length; i++) {
+                        if (splittext[i] >= '0' && splittext[i] <= '9') {
+                            like_string+=splittext[i]
+                        } else {
+                            break
+                        }
+                    }
+                    if (likes.length > 0) {
+                        expect(Number(like_string)).toBeLessThanOrEqual(likes[likes.length-1])
+                    }
+                    likes.push(Number(like_string))
+                }
             })
         })
     })
