@@ -84,19 +84,15 @@ describe('Blog app', () => {
             await expect(blogs_div).toBeVisible()
         })
 
-        test('new blog appers in blog div after successful creation.', async ({ page }) => {
+        test('new blog is visible in blog div after successful creation.', async ({ page }) => {
             await page.getByRole('button', { name: 'new blog' }).click()
             await page.locator('input[name="title"]').fill('a new blog')
             await page.locator('input[name="author"]').fill('new author')
             await page.locator('input[name="url"]').fill('new url')
             page.getByRole('button', { name: 'create' }).click()
-            
-            const blogs_div = await page
-                .locator('.blogs')
-                .filter({ has: page.locator('.blog') })
-                .filter({ hasText: 'a new blog' })
+            const blog = await page.locator('.blog')
                 
-            await expect(blogs_div).toBeVisible()
+            await expect(blog).toBeVisible()
         })
         describe('After creating a new blog.', () => {
             let blog
@@ -113,9 +109,9 @@ describe('Blog app', () => {
                 await expect(blog_expand_button).toBeVisible()
             })
             test('url, likes and creator not visible by default.', async ({ page }) => {
-                const blog_url = await blog.getByText('a new blog').getByText('new url')
-                const blog_likes = await blog.getByText('a new blog').getByText(/Likes: 0/)
-                const blog_user = await blog.getByText('a new blog').getByText('Test User')
+                const blog_url = await blog.getByText('new url')
+                const blog_likes = await blog.getByText(/Likes: 0/)
+                const blog_user = await blog.getByText('Test User')
                 await expect(blog_url).not.toBeVisible()
                 await expect(blog_likes).not.toBeVisible()
                 await expect(blog_user).not.toBeVisible()
@@ -126,18 +122,28 @@ describe('Blog app', () => {
                     await blog.getByRole('button', { name: 'view' }).click()
                 })
                 test('url, likes and creator visible after clicking view.', async({ page }) => {
-                    const blog_url = await blog.getByText('a new blog').getByText('new url')
-                    const blog_likes = await blog.getByText('a new blog').getByText(/Likes: 0/)
-                    const blog_user = await blog.getByText('a new blog').getByText('Test User')
+                    const blog_url = await blog.getByText('new url')
+                    const blog_likes = await blog.getByText(/Likes: 0/)
+                    const blog_user = await blog.getByText('Test User')
                     await expect(blog_url).toBeVisible()
                     await expect(blog_likes).toBeVisible()
                     await expect(blog_user).toBeVisible()
                 })
-                test('likes goes up by one after clicking like', async({ page }) => {
+                test('likes goes up by one after clicking like.', async({ page }) => {
                     const like_button = await blog.getByRole('button', { name: 'like' })
                     await like_button.click()
                     const blog_likes = await blog.getByText('a new blog').getByText('Likes: ')
                     await expect(blog_likes).toHaveText(/Likes: 1/)
+                })
+                test('remove button is visible.', async({ page }) => {
+                    const remove_button = await blog.getByRole('button', { name: 'remove' })
+                    await expect(remove_button).toBeVisible()
+                })
+                test('clicking the remove button removes the blog from the blog div.', async({ page }) => {
+                    const remove_button = await blog.getByRole('button', { name: 'remove' })
+                    page.on('dialog', dialog => dialog.accept());
+                    await remove_button.click()
+                    await expect(page.locator('.blog')).toHaveCount(0)
                 })
             })
         })
