@@ -20,7 +20,8 @@ const Notification = ({ message }) => {
 
 const Blogs = (props) => {
     return (
-        <div>
+        <div className='blogs'>
+            <h1>blogs</h1>
             {props.blogs.map(blog =>
                 <Blog key={blog.id} blog={blog} performLike={props.performLike} performRemove={props.performRemove}/>
             )}
