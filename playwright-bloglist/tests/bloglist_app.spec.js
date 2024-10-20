@@ -1,4 +1,4 @@
-const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { test, expect, beforeEach, describe, beforeAll } = require('@playwright/test')
 
 describe('Blog app', () => {
     beforeEach(async ({ page, request }) => {
@@ -84,7 +84,6 @@ describe('Blog app', () => {
             await expect(blogs_div).toBeVisible()
         })
 
-
         test('new blog appers in blog div after successful creation.', async ({ page }) => {
             await page.getByRole('button', { name: 'new blog' }).click()
             await page.locator('input[name="title"]').fill('a new blog')
@@ -99,5 +98,48 @@ describe('Blog app', () => {
                 
             await expect(blogs_div).toBeVisible()
         })
-      })
+        describe('After creating a new blog.', () => {
+            let blog
+            beforeEach(async ({ page }) => {
+                await page.getByRole('button', { name: 'new blog' }).click()
+                await page.locator('input[name="title"]').fill('a new blog')
+                await page.locator('input[name="author"]').fill('new author')
+                await page.locator('input[name="url"]').fill('new url')
+                await page.getByRole('button', { name: 'create' }).click()
+                blog = await page.locator('.blog')
+            })
+            test('blog view button is visible.', async ({ page }) => {
+                const blog_expand_button = await blog.getByRole('button', { name: 'view' })
+                await expect(blog_expand_button).toBeVisible()
+            })
+            test('url, likes and creator not visible by default.', async ({ page }) => {
+                const blog_url = await blog.getByText('a new blog').getByText('new url')
+                const blog_likes = await blog.getByText('a new blog').getByText(/Likes: 0/)
+                const blog_user = await blog.getByText('a new blog').getByText('Test User')
+                await expect(blog_url).not.toBeVisible()
+                await expect(blog_likes).not.toBeVisible()
+                await expect(blog_user).not.toBeVisible()
+            })
+            
+            describe('After clicking view', () => {
+                beforeEach(async ({ page }) => {
+                    await blog.getByRole('button', { name: 'view' }).click()
+                })
+                test('url, likes and creator visible after clicking view.', async({ page }) => {
+                    const blog_url = await blog.getByText('a new blog').getByText('new url')
+                    const blog_likes = await blog.getByText('a new blog').getByText(/Likes: 0/)
+                    const blog_user = await blog.getByText('a new blog').getByText('Test User')
+                    await expect(blog_url).toBeVisible()
+                    await expect(blog_likes).toBeVisible()
+                    await expect(blog_user).toBeVisible()
+                })
+                test('likes goes up by one after clicking like', async({ page }) => {
+                    const like_button = await blog.getByRole('button', { name: 'like' })
+                    await like_button.click()
+                    const blog_likes = await blog.getByText('a new blog').getByText('Likes: ')
+                    await expect(blog_likes).toHaveText(/Likes: 1/)
+                })
+            })
+        })
+    })
 })
