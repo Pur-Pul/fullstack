@@ -146,6 +146,26 @@ describe('Blog app', () => {
                     await expect(page.locator('.blog')).toHaveCount(0)
                 })
             })
+
+            describe('Logging in as another user.', () => {
+                beforeEach(async ({ page, request }) => {
+                    await page.getByRole('button', { name: 'logout' }).click()
+                    await request.post('http://localhost:3003/api/users', {
+                        data: {
+                            name: 'Test2 User2',
+                            username: 'test2',
+                            password: 'pass'
+                        }
+                    })
+                    await page.locator('input[name="Username"]').fill('test2')
+                    await page.locator('input[name="Password"]').fill('pass')
+                    await page.getByRole('button', { name: 'login' }).click()
+                })
+                test('Other users don\'t see the remove button', async({ page }) => {
+                    await page.locator('.blog').getByRole('button', { name: 'view' }).click()
+                    expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible()
+                })
+            })
         })
     })
 })
