@@ -17,8 +17,11 @@ const asObject = (anecdote) => {
 	}
 }
 
-const initialState = anecdotesAtStart.map(asObject)
+const compareVotes = (a, b) => {
+	return (a.votes > b.votes) ? -1 : ((b.votes > a.votes) ? 1 : 0)
+}
 
+const initialState = anecdotesAtStart.map(asObject)
 const reducer = (state = initialState, action) => {
 	console.log('state now: ', state)
 	console.log('action', action)
@@ -27,9 +30,13 @@ const reducer = (state = initialState, action) => {
 			let index = state.findIndex(anecdote => anecdote.id === action.id)
 			let cloned_state = state.slice()
 			cloned_state[index] = { ...state[index], votes: state[index].votes + 1 }
+			cloned_state.sort(compareVotes)
 			return cloned_state
+
 		case 'NEW':
-			return [...state, asObject(action.new_anecdote)]
+			let new_state = [...state, asObject(action.new_anecdote)]
+			new_state.sort(compareVotes)
+			return new_state
 			
 		default:
 			return state.slice()
