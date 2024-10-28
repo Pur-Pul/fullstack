@@ -28,6 +28,9 @@ const reducer = (state = initialState, action) => {
 			let cloned_state = state.slice()
 			cloned_state[index] = { ...state[index], votes: state[index].votes + 1 }
 			return cloned_state
+		case 'NEW':
+			return [...state, asObject(action.new_anecdote)]
+			
 		default:
 			return state.slice()
 	}
