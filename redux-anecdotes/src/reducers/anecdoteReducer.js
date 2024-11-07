@@ -26,15 +26,15 @@ const anecdoteSlice = createSlice({
 			return cloned_state
 		},
 		createAnecdote(state, action) {
-			let new_state = [...state, asObject(action.payload)]
+			let new_state = [...state, action.payload]
 			new_state.sort(compareVotes)
 			return new_state
 		},
-		appendAnecdote(state, action) {
-			state.push(action.payload)
+		setAnecdotes(state, action) {
+			return action.payload
 		}
 	}
 })
 
-export const { vote, createAnecdote, appendAnecdote } = anecdoteSlice.actions
+export const { vote, createAnecdote, setAnecdotes } = anecdoteSlice.actions
 export default anecdoteSlice.reducer

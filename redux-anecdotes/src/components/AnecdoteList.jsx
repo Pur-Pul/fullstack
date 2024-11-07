@@ -6,7 +6,8 @@ const AnecdoteList = () => {
     const dispatch = useDispatch()
     const anecdotes = useSelector(state => {
         console.log(state.filter);
-        
+        console.log(state.anecdotes);
+		
         return state.anecdotes.filter(anecdote => anecdote.content.includes(state.filter))
     })
 
