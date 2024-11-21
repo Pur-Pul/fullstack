@@ -19,23 +19,37 @@ const App = () => {
 	const [notification, notificationDispatch] = useReducer(notificationReducer, '')
 	const queryClient = useQueryClient()
 	const newAnecdoteMutation = useMutation({ 
-		mutationFn: (newAnecdote) => {
-			notificationDispatch({ type:'SET', notification:`created anecdote ${newAnecdote.content}` })
-			setTimeout( () => {
-					notificationDispatch({ type:'RESET' })
-				}, 5000
-			)
-			return createAnecdote(newAnecdote)
-		},
-		onSuccess: () => {
+		mutationFn: createAnecdote,
+		onSuccess: (data) => {
+			notificationDispatch({ type:'SET', notification:`created anecdote ${data.content}` })
+			setTimeout( () => { notificationDispatch({ type:'RESET' }) }, 5000)
 			queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+		},
+		onError: (error, variable, context) => {
+			console.log(error);
+			console.log(variable);
+			console.log(context);
+			
+			
+			
+			notificationDispatch({ type:'SET', notification:error.response.data.error })
+			setTimeout( () => { notificationDispatch({ type:'RESET' }) }, 5000)
 		}
 	})
 	const updateAnecdoteMutation = useMutation({
 		mutationFn: updateAnecdote,
-		onSuccess: () => {
+		onSuccess: (data) => {
+			notificationDispatch({ type:'SET', notification:`voted on anecdote ${data.content}` })
+			setTimeout( () => { notificationDispatch({ type:'RESET' }) }, 5000)
 		  	queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
 		},
+		onError: (data) => {
+			notificationDispatch({ type:'SET', notification:`an error occured ${data}` })
+			setTimeout( () => {
+					notificationDispatch({ type:'RESET' })
+				}, 5000
+			)
+		}
 	})
 
 	const result = useQuery({
@@ -55,11 +69,7 @@ const App = () => {
 	const handleVote = (anecdote) => {
 		console.log('vote')
 		updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 })
-		notificationDispatch({ type:'SET', notification:`voted on anecdote ${anecdote.content}` })
-		setTimeout( () => {
-				notificationDispatch({ type:'RESET' })
-			}, 5000
-		)
+		
 	}
 
 	return (
