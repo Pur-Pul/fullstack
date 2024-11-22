@@ -15,10 +15,18 @@ const CreateNew = (props) => {
         props.addNew({
             content: content.value,
             author: author.value,
-            infor: info.value,
+            info: info.value,
             votes: 0
         })
         setNotification(`a new anecdote ${content.value} created!`)
+        navigate('/')
+    }
+
+    const handleReset = (event) => {
+        event.preventDefault()
+        content.reset()
+        author.reset()
+        info.reset()
     }
   
     return (
@@ -35,6 +43,7 @@ const CreateNew = (props) => {
                 <input {...info} />
                 <br/> 
                 <button>create</button>
+                <button onClick={handleReset}>reset</button>
             </form>
         </div>
     )
