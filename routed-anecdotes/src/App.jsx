@@ -1,6 +1,7 @@
 import { useState, createContext } from 'react'
 import Menu from '../components/menu'
 import AnecdoteList from '../components/anecdote_list'
+import Anecdote from '../components/anecdote'
 import About from '../components/about'
 import Footer from '../components/footer'
 import CreateNew from '../components/anecdote_form'
@@ -67,6 +68,7 @@ const App = () => {
 					</anecdoteContext.Provider>
 				} />
 				<Route path='/about' element={<About />} />
+				<Route path='/anecdotes/:id' element={<Anecdote anecdotes={anecdotes}/>} />
 			</Routes>
 		</Router>
 		<Footer />
