@@ -1,12 +1,13 @@
 import { useState, createContext } from 'react'
-import Menu from '../components/menu'
-import AnecdoteList from '../components/anecdote_list'
-import Anecdote from '../components/anecdote'
-import About from '../components/about'
-import Footer from '../components/footer'
-import CreateNew from '../components/anecdote_form'
-import anecdoteContext from '../anecdote_context'
-import Notification from '../components/notification'
+import Menu from './components/menu'
+import AnecdoteList from './components/anecdote_list'
+import Anecdote from './components/anecdote'
+import About from './components/about'
+import Footer from './components/footer'
+import CreateNew from './components/anecdote_form'
+import anecdoteContext from './anecdote_context'
+import Notification from './components/notification'
+import { useField, useNotification } from './hooks'
 import {
     BrowserRouter as Router,
     Routes, Route
@@ -30,10 +31,7 @@ const App = () => {
 		}
 	])
 
-	const [notification, setNotification] = useState('')
-	const [content, setContent] = useState('')
-	const [author, setAuthor] = useState('')
-	const [info, setInfo] = useState('')
+	const [notification, setNotification] = useNotification('')
 
   	const addNew = (anecdote) => {
 		anecdote.id = Math.round(Math.random() * 10000)
@@ -64,7 +62,7 @@ const App = () => {
 			<Routes>
 				<Route path='/' element={<AnecdoteList anecdotes={ anecdotes }/>} />
 				<Route path='/create' element={
-					<anecdoteContext.Provider value={ [content, setContent, author, setAuthor, info, setInfo, notification, setNotification] }>
+					<anecdoteContext.Provider value={ [notification, setNotification] }>
 						<CreateNew addNew={ addNew } />
 					</anecdoteContext.Provider>
 				} />
