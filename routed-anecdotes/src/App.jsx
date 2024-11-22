@@ -6,9 +6,10 @@ import About from '../components/about'
 import Footer from '../components/footer'
 import CreateNew from '../components/anecdote_form'
 import anecdoteContext from '../anecdote_context'
+import Notification from '../components/notification'
 import {
     BrowserRouter as Router,
-    Routes, Route, Link
+    Routes, Route
 } from 'react-router-dom'
 
 const App = () => {
@@ -30,7 +31,6 @@ const App = () => {
 	])
 
 	const [notification, setNotification] = useState('')
-
 	const [content, setContent] = useState('')
 	const [author, setAuthor] = useState('')
 	const [info, setInfo] = useState('')
@@ -60,15 +60,16 @@ const App = () => {
 		
 		<Router>
 			<Menu />
+			<Notification notification={ notification }/>
 			<Routes>
-				<Route path='/' element={<AnecdoteList anecdotes={anecdotes}/>} />
+				<Route path='/' element={<AnecdoteList anecdotes={ anecdotes }/>} />
 				<Route path='/create' element={
-					<anecdoteContext.Provider value={[content, setContent, author, setAuthor, info, setInfo]}>
-						<CreateNew addNew={addNew} />
+					<anecdoteContext.Provider value={ [content, setContent, author, setAuthor, info, setInfo, notification, setNotification] }>
+						<CreateNew addNew={ addNew } />
 					</anecdoteContext.Provider>
 				} />
 				<Route path='/about' element={<About />} />
-				<Route path='/anecdotes/:id' element={<Anecdote anecdotes={anecdotes}/>} />
+				<Route path='/anecdotes/:id' element={<Anecdote anecdotes={ anecdotes }/>} />
 			</Routes>
 		</Router>
 		<Footer />

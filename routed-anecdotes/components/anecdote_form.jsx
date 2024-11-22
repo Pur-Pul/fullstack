@@ -1,8 +1,10 @@
 import { useContext } from "react"
+import { useNavigate } from 'react-router-dom'
 import anecdoteContext from "../anecdote_context"
 
 const CreateNew = (props) => {
-    const [content, setContent, author, setAuthor, info, setInfo] = useContext(anecdoteContext)
+    const [content, setContent, author, setAuthor, info, setInfo, notification, setNotification] = useContext(anecdoteContext)
+    const navigate = useNavigate()
     const handleSubmit = (e) => {
         e.preventDefault()
         props.addNew({
@@ -11,6 +13,11 @@ const CreateNew = (props) => {
             info,
             votes: 0
         })
+        setNotification(`a new anecdote ${content} created!`)
+        setTimeout(() => {
+            setNotification('')
+        }, 5000)
+        navigate('/')
     }
   
     return (
