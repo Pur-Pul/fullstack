@@ -4,15 +4,10 @@ import BlogForm from './components/BlogForm'
 import LoginForm from './components/Login'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import { notificationSet } from './reducers/notificationReducer'
 import './index.css'
-
-const Notification = ({ message }) => {
-	if (message === null) {
-		return null
-	}
-
-	return <div className={message.type}>{message.text}</div>
-}
+import Notification from './components/Notification'
+import { useDispatch } from 'react-redux'
 
 const Blogs = (props) => {
 	return (
@@ -33,8 +28,8 @@ const Blogs = (props) => {
 const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [user, setUser] = useState(null)
-	const [message, setMessage] = useState(null)
 	const blogFormRef = useRef()
+	const dispatch = useDispatch()
 
 	useEffect(() => {
 		;(async () => {
@@ -65,10 +60,12 @@ const App = () => {
 			setUser(response)
 			blogService.setToken(response.token)
 		} catch (exception) {
-			setMessage({ text: exception.response.data.error, type: 'error' })
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dispatch(
+				notificationSet(
+					{ text: exception.response.data.error, type: 'error' },
+					5
+				)
+			)
 		}
 	}
 
@@ -86,19 +83,26 @@ const App = () => {
 			setBlogs(new_blogs)
 			blogFormRef.current.resetForm()
 
-			setMessage({
-				text: `a new blog ${response.title} by ${response.author} added`,
-				type: 'message',
-			})
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dispatch(
+				notificationSet(
+					{
+						text: `a new blog ${response.title} by ${response.author} added`,
+						type: 'message',
+					},
+					5
+				)
+			)
 		} catch (exception) {
 			console.log(exception)
-			setMessage({ text: exception.response.data.error, type: 'error' })
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dispatch(
+				notificationSet(
+					{
+						text: exception.response.data.error,
+						type: 'error',
+					},
+					5
+				)
+			)
 		}
 	}
 
@@ -113,16 +117,26 @@ const App = () => {
 			let new_blogs = blogs.slice()
 			new_blogs[new_blogs.findIndex((blog) => blog.id === id)] = response
 			setBlogs(new_blogs)
-			setMessage({ text: `Blog ${blog.title} liked.`, type: 'message' })
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dispatch(
+				notificationSet(
+					{
+						text: `Blog ${blog.title} liked.`,
+						type: 'message',
+					},
+					5
+				)
+			)
 		} catch (exception) {
 			console.log(exception)
-			setMessage({ text: exception.response.data.error, type: 'error' })
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dispatch(
+				notificationSet(
+					{
+						text: exception.response.data.error,
+						type: 'error',
+					},
+					5
+				)
+			)
 		}
 	}
 
@@ -132,29 +146,35 @@ const App = () => {
 
 			let new_blogs = blogs.slice()
 			const blog_index = new_blogs.findIndex((blog) => blog.id === id)
-			setMessage({
-				text: `Blog ${blogs[blog_index].title} removed.`,
-				type: 'message',
-			})
+			dispatch(
+				notificationSet(
+					{
+						text: `Blog ${blogs[blog_index].title} removed.`,
+						type: 'message',
+					},
+					5
+				)
+			)
 			new_blogs.splice(blog_index, 1)
 			setBlogs(new_blogs)
-
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
 		} catch (exception) {
 			console.log(exception)
 
-			setMessage({ text: exception.response.data.error, type: 'error' })
-			setTimeout(() => {
-				setMessage(null)
-			}, 5000)
+			dsipatch(
+				notificationSet(
+					{
+						text: exception.response.data.error,
+						type: 'error',
+					},
+					5
+				)
+			)
 		}
 	}
 
 	return (
 		<div>
-			<Notification message={message} />
+			<Notification />
 			{user === null ? (
 				<LoginForm performLogin={performLogin} />
 			) : (
