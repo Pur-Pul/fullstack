@@ -56,72 +56,6 @@ const App = () => {
 		setUser(null)
 	}
 
-	const performLike = async (id) => {
-		try {
-			let blog = await blogService.get(id)
-			const response = await blogService.update(
-				{ likes: blog.likes + 1 },
-				id
-			)
-
-			let new_blogs = blogs.slice()
-			new_blogs[new_blogs.findIndex((blog) => blog.id === id)] = response
-			setBlogs(new_blogs)
-			dispatch(
-				notificationSet(
-					{
-						text: `Blog ${blog.title} liked.`,
-						type: 'message',
-					},
-					5
-				)
-			)
-		} catch (exception) {
-			console.log(exception)
-			dispatch(
-				notificationSet(
-					{
-						text: exception.response.data.error,
-						type: 'error',
-					},
-					5
-				)
-			)
-		}
-	}
-
-	const performRemove = async (id) => {
-		try {
-			await blogService.remove(id)
-
-			let new_blogs = blogs.slice()
-			const blog_index = new_blogs.findIndex((blog) => blog.id === id)
-			dispatch(
-				notificationSet(
-					{
-						text: `Blog ${blogs[blog_index].title} removed.`,
-						type: 'message',
-					},
-					5
-				)
-			)
-			new_blogs.splice(blog_index, 1)
-			setBlogs(new_blogs)
-		} catch (exception) {
-			console.log(exception)
-
-			dsipatch(
-				notificationSet(
-					{
-						text: exception.response.data.error,
-						type: 'error',
-					},
-					5
-				)
-			)
-		}
-	}
-
 	return (
 		<div>
 			<Notification />
@@ -134,11 +68,7 @@ const App = () => {
 						<button onClick={logoutHandler}>logout</button>
 					</p>
 					<BlogForm />
-					<BlogList
-						blogs={blogs}
-						performLike={performLike}
-						performRemove={performRemove}
-					/>
+					<BlogList blogs={blogs} />
 				</div>
 			)}
 		</div>
