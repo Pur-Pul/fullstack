@@ -1,29 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import BlogList from './components/BlogList'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/Login'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { notificationSet } from './reducers/notificationReducer'
+import { initializeBlogs } from './reducers/blogReducer'
 import './index.css'
 import Notification from './components/Notification'
 import { useDispatch } from 'react-redux'
-
-const Blogs = (props) => {
-	return (
-		<div className="blogs">
-			<h1>blogs</h1>
-			{props.blogs.map((blog) => (
-				<Blog
-					key={blog.id}
-					blog={blog}
-					performLike={props.performLike}
-					performRemove={props.performRemove}
-				/>
-			))}
-		</div>
-	)
-}
 
 const App = () => {
 	const [blogs, setBlogs] = useState([])
@@ -32,11 +17,7 @@ const App = () => {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		;(async () => {
-			let response = await blogService.getAll()
-			response.sort((blog1, blog2) => blog2.likes - blog1.likes)
-			setBlogs(response)
-		})()
+		dispatch(initializeBlogs())
 	}, [])
 
 	useEffect(() => {
@@ -73,37 +54,6 @@ const App = () => {
 		event.preventDefault()
 		window.localStorage.removeItem('loggedUser')
 		setUser(null)
-	}
-
-	const createBlog = async (blogObject) => {
-		try {
-			const response = await blogService.post(blogObject)
-			const new_blogs = blogs.slice()
-			new_blogs.push(response)
-			setBlogs(new_blogs)
-			blogFormRef.current.resetForm()
-
-			dispatch(
-				notificationSet(
-					{
-						text: `a new blog ${response.title} by ${response.author} added`,
-						type: 'message',
-					},
-					5
-				)
-			)
-		} catch (exception) {
-			console.log(exception)
-			dispatch(
-				notificationSet(
-					{
-						text: exception.response.data.error,
-						type: 'error',
-					},
-					5
-				)
-			)
-		}
 	}
 
 	const performLike = async (id) => {
@@ -183,8 +133,8 @@ const App = () => {
 						{user.name} logged-in
 						<button onClick={logoutHandler}>logout</button>
 					</p>
-					<BlogForm createBlog={createBlog} ref={blogFormRef} />
-					<Blogs
+					<BlogForm />
+					<BlogList
 						blogs={blogs}
 						performLike={performLike}
 						performRemove={performRemove}
