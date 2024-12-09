@@ -11,11 +11,11 @@ const test_blog = {
     creator: {
         name: 'Test User',
         username: 'Tester',
-        id: '1234567890'
-    }
+        id: '1234567890',
+    },
 }
 
-test('renders \'create new\' header for the form.', () => {
+test("renders 'create new' header for the form.", () => {
     render(<BlogForm />)
     const element = screen.getByText('create new')
     expect(element).toBeDefined()
@@ -53,16 +53,16 @@ test('renders form input for url.', () => {
     expect(element.querySelector('input').nodeName.toLowerCase()).toBe('input')
 })
 
-test('renders a \'create\' button to submit the form.', () => {
+test("renders a 'create' button to submit the form.", () => {
     render(<BlogForm />)
     const button = screen.getByText('create')
     expect(button).toBeDefined()
     expect(button.nodeName.toLowerCase()).toBe('button')
 })
 
-test('pressing \'create\' button calls create event handler.', async () => {
+test("pressing 'create' button calls create event handler.", async () => {
     const mockHandler = vi.fn()
-    render(<BlogForm createBlog={mockHandler}/>)
+    render(<BlogForm createBlog={mockHandler} />)
     const user = userEvent.setup()
     const button = screen.getByText('create')
     await user.click(button)
@@ -72,7 +72,7 @@ test('pressing \'create\' button calls create event handler.', async () => {
 
 test('correct details are passed to the event handler upon pressing create button.', async () => {
     const mockHandler = vi.fn()
-    render(<BlogForm createBlog={mockHandler}/>)
+    render(<BlogForm createBlog={mockHandler} />)
     const user = userEvent.setup()
 
     const button = screen.getByText('create')

@@ -28,14 +28,14 @@ const localStorageMock = (function () {
     }
 })()
 
-
 beforeEach(() => {
     Object.defineProperty(window, 'localStorage', { value: localStorageMock })
     window.localStorage.setItem(
-        'loggedUser', JSON.stringify({
+        'loggedUser',
+        JSON.stringify({
             username: 'Tester',
             name: 'Test User',
-            id: '1234567890'
+            id: '1234567890',
         })
     )
 })

@@ -13,7 +13,7 @@ const get = async (id) => {
     return response.data
 }
 
-const post = async blog => {
+const post = async (blog) => {
     const config = {
         headers: { Authorization: token },
     }
@@ -31,7 +31,7 @@ const update = async (blog, id) => {
     return response.data
 }
 
-const remove = async(id) => {
+const remove = async (id) => {
     const config = {
         headers: { Authorization: token },
     }
@@ -40,7 +40,7 @@ const remove = async(id) => {
     return response.data
 }
 
-const setToken = new_token => {
+const setToken = (new_token) => {
     token = `Bearer ${new_token}`
 }
 

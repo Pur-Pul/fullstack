@@ -8,8 +8,8 @@ const LoginForm = ({ performLogin }) => {
     const loginHandler = (event) => {
         event.preventDefault()
         performLogin({
-            username : username,
-            password : password
+            username: username,
+            password: password,
         })
         setUsername('')
         setPassword('')
@@ -44,7 +44,7 @@ const LoginForm = ({ performLogin }) => {
 }
 
 LoginForm.propTypes = {
-    performLogin : PropTypes.func.isRequired
+    performLogin: PropTypes.func.isRequired,
 }
 
 export default LoginForm

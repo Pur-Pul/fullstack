@@ -10,10 +10,9 @@ const test_blog = {
     creator: {
         name: 'Test User',
         username: 'Tester',
-        id: '1234567890'
-    }
+        id: '1234567890',
+    },
 }
-
 
 test('renders blog title', () => {
     render(<Blog blog={test_blog} />)
@@ -27,13 +26,13 @@ test('renders two elements per blog.', () => {
     expect(elements.length).to.equal(2)
 })
 
-test('expanded blog has style \'display: none\' by default', () => {
+test("expanded blog has style 'display: none' by default", () => {
     render(<Blog blog={test_blog} />)
     const element = screen.getByTestId('expanded')
     expect(element).toHaveStyle('display: none')
 })
 
-test('collapsed blog doesn\'t have style \'display: none\' by default', () => {
+test("collapsed blog doesn't have style 'display: none' by default", () => {
     render(<Blog blog={test_blog} />)
     const element = screen.getByTestId('collapsed')
     expect(element).not.toHaveStyle('display: none')
@@ -53,13 +52,13 @@ test('collapsed blog does not contain url or likes.', () => {
     expect(element).not.toHaveTextContent('Likes:')
 })
 
-test('blog has a \'view\' button.', () => {
+test("blog has a 'view' button.", () => {
     render(<Blog blog={test_blog} />)
     const button = screen.getByText('view')
     expect(button).toBeDefined()
 })
 
-test('expanded blog does not have style \'display: none\' after clicking the \'view\' button.', async () => {
+test("expanded blog does not have style 'display: none' after clicking the 'view' button.", async () => {
     render(<Blog blog={test_blog} />)
     const user = userEvent.setup()
     const button = screen.getByText('view')
@@ -68,7 +67,7 @@ test('expanded blog does not have style \'display: none\' after clicking the \'v
     expect(element).not.toHaveStyle('display: none')
 })
 
-test('collapsed blog has style \'display: none\' after clicking the \'view\' button.', async () => {
+test("collapsed blog has style 'display: none' after clicking the 'view' button.", async () => {
     render(<Blog blog={test_blog} />)
     const user = userEvent.setup()
     const button = screen.getByText('view')
@@ -77,7 +76,7 @@ test('collapsed blog has style \'display: none\' after clicking the \'view\' but
     expect(element).toHaveStyle('display: none')
 })
 
-test('expanded blog contains title, author, url and likes after clicking the \'view\' button.', async () => {
+test("expanded blog contains title, author, url and likes after clicking the 'view' button.", async () => {
     render(<Blog blog={test_blog} />)
     const user = userEvent.setup()
     const button = screen.getByText('view')
@@ -98,7 +97,7 @@ test('blog contains like button.', () => {
 
 test('pressing like button calls the like event handler once.', async () => {
     const mockHandler = vi.fn()
-    render(<Blog blog={test_blog} performLike={mockHandler}/>)
+    render(<Blog blog={test_blog} performLike={mockHandler} />)
     const user = userEvent.setup()
     const button = screen.getByText('like')
     await user.click(button)
@@ -108,7 +107,7 @@ test('pressing like button calls the like event handler once.', async () => {
 
 test('pressing like button twice calls the like event handler twice.', async () => {
     const mockHandler = vi.fn()
-    render(<Blog blog={test_blog} performLike={mockHandler}/>)
+    render(<Blog blog={test_blog} performLike={mockHandler} />)
     const user = userEvent.setup()
     const button = screen.getByText('like')
     await user.click(button)
