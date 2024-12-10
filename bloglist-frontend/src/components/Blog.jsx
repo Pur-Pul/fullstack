@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 import { performRemove, performLike } from '../reducers/blogReducer'
-import { notificationSet } from '../reducers/notificationReducer'
+import { notificationSet } from '../reducers/notificationReducer.js'
 import { useDispatch } from 'react-redux'
 
 const Blog = ({ blog }) => {

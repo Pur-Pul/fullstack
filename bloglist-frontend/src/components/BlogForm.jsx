@@ -1,6 +1,6 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { createBlog } from '../reducers/blogReducer'
-import { notificationSet } from '../reducers/notificationReducer'
+import { notificationSet } from '../reducers/notificationReducer.js'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 

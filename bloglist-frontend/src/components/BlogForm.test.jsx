@@ -87,30 +87,35 @@ test("renders a 'create' button to submit the form.", () => {
 })
 
 test("pressing 'create' button calls create event handler.", async () => {
-	const mockHandler = vi.fn()
+	const createBlogMock = vi.fn()
+	vi.doMock('../reducers/blogReducer.js', () => ({
+		createBlog: createBlogMock,
+	}))
+
 	render(
 		<Provider store={store}>
 			<BlogForm />
 		</Provider>
 	)
-	//render(<BlogForm createBlog={mockHandler} />)
 	const user = userEvent.setup()
 	const button = screen.getByText('create')
 	await user.click(button)
 
-	expect(mockHandler.mock.calls).toHaveLength(1)
+	expect(createBlogMock.mock.calls).toHaveLength(1)
 })
 
 test('correct details are passed to the event handler upon pressing create button.', async () => {
-	const mockHandler = vi.fn()
+	const createBlogMock = vi.fn()
+	vi.doMock('../reducers/blogReducer.js', () => ({
+		createBlog: createBlogMock,
+	}))
+
 	render(
 		<Provider store={store}>
 			<BlogForm />
 		</Provider>
 	)
-	//render(<BlogForm createBlog={mockHandler} />)
 	const user = userEvent.setup()
-
 	const button = screen.getByText('create')
 	const title_input = screen.getByText('title').querySelector('input')
 	const author_input = screen.getByText('author').querySelector('input')
@@ -121,8 +126,10 @@ test('correct details are passed to the event handler upon pressing create butto
 	await user.type(url_input, 'test url')
 	await user.click(button)
 
-	expect(mockHandler.mock.calls).toHaveLength(1)
-	expect(mockHandler.mock.calls[0][0].title).toBe('test title')
-	expect(mockHandler.mock.calls[0][0].author).toBe('test author')
-	expect(mockHandler.mock.calls[0][0].url).toBe('test url')
+	//expect(spyHandler.mock.calls).toHaveLength(1)
+	expect(createBlogMock).toHaveBeenCalledWith({
+		title: 'test title',
+		author: 'test author',
+		url: 'test url',
+	})
 })

@@ -2,20 +2,23 @@ import { useEffect } from 'react'
 import BlogList from './components/BlogList'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/Login'
-import { loginUser, performLogout } from './reducers/userReducer'
+import { loginUser, performLogout } from './reducers/loginReducer'
 import { initializeBlogs } from './reducers/blogReducer'
 import './index.css'
 import Notification from './components/Notification'
 import { useDispatch, useSelector } from 'react-redux'
+import { initializeUsers } from './reducers/userReducer'
+import UserList from './components/UserList'
 
 const App = () => {
 	const user = useSelector((state) => {
-		return state.user
+		return state.login
 	})
 	const dispatch = useDispatch()
 
 	useEffect(() => {
 		dispatch(initializeBlogs())
+		dispatch(initializeUsers())
 	}, [])
 
 	useEffect(() => {
@@ -44,6 +47,7 @@ const App = () => {
 					</p>
 					<BlogForm />
 					<BlogList />
+					<UserList />
 				</div>
 			)}
 		</div>
