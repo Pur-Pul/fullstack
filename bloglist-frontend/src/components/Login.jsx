@@ -1,50 +1,57 @@
 import { useState } from 'react'
-import PropTypes from 'prop-types'
+import { performLogin } from '../reducers/userReducer'
+import { notificationSet } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
 
-const LoginForm = ({ performLogin }) => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+const LoginForm = () => {
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
+	const dispatch = useDispatch()
 
-    const loginHandler = (event) => {
-        event.preventDefault()
-        performLogin({
-            username: username,
-            password: password,
-        })
-        setUsername('')
-        setPassword('')
-    }
+	const loginHandler = (event) => {
+		event.preventDefault()
+		dispatch(performLogin({ username: username, password: password }))
+			.then(() => {
+				setUsername('')
+				setPassword('')
+			})
+			.catch((exception) => {
+				console.log(exception)
+				dispatch(
+					notificationSet(
+						{ text: exception.response.data.error, type: 'error' },
+						5
+					)
+				)
+			})
+	}
 
-    return (
-        <div>
-            <h1>login to application</h1>
-            <form onSubmit={loginHandler}>
-                <div>
-                    username
-                    <input
-                        type="text"
-                        value={username}
-                        name="Username"
-                        onChange={({ target }) => setUsername(target.value)}
-                    />
-                </div>
-                <div>
-                    password
-                    <input
-                        type="password"
-                        value={password}
-                        name="Password"
-                        onChange={({ target }) => setPassword(target.value)}
-                    />
-                </div>
-                <button type="submit">login</button>
-            </form>
-        </div>
-    )
-}
-
-LoginForm.propTypes = {
-    performLogin: PropTypes.func.isRequired,
+	return (
+		<div>
+			<h1>login to application</h1>
+			<form onSubmit={loginHandler}>
+				<div>
+					username
+					<input
+						type="text"
+						value={username}
+						name="Username"
+						onChange={({ target }) => setUsername(target.value)}
+					/>
+				</div>
+				<div>
+					password
+					<input
+						type="password"
+						value={password}
+						name="Password"
+						onChange={({ target }) => setPassword(target.value)}
+					/>
+				</div>
+				<button type="submit">login</button>
+			</form>
+		</div>
+	)
 }
 
 export default LoginForm

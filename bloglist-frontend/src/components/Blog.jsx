@@ -22,46 +22,19 @@ const Blog = ({ blog }) => {
 
 	const likeHandler = (event) => {
 		event.preventDefault()
-		try {
-			dispatch(performLike(blog.id))
-			dispatch(
-				notificationSet(
-					{
-						text: `Blog ${blog.title} liked.`,
-						type: 'message',
-					},
-					5
-				)
-			)
-		} catch (exception) {
-			console.log(exception)
-			dispatch(
-				notificationSet(
-					{
-						text: exception.response.data.error,
-						type: 'error',
-					},
-					5
-				)
-			)
-		}
-	}
-
-	const removeHandler = (event) => {
-		event.preventDefault()
-		if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-			try {
-				dispatch(performRemove(blog.id))
+		dispatch(performLike(blog.id))
+			.then(() => {
 				dispatch(
 					notificationSet(
 						{
-							text: `Blog ${blog.title} removed.`,
+							text: `Blog ${blog.title} liked.`,
 							type: 'message',
 						},
 						5
 					)
 				)
-			} catch (exception) {
+			})
+			.catch((exception) => {
 				console.log(exception)
 				dispatch(
 					notificationSet(
@@ -72,7 +45,36 @@ const Blog = ({ blog }) => {
 						5
 					)
 				)
-			}
+			})
+	}
+
+	const removeHandler = (event) => {
+		event.preventDefault()
+		if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+			dispatch(performRemove(blog.id))
+				.then(() => {
+					dispatch(
+						notificationSet(
+							{
+								text: `Blog ${blog.title} removed.`,
+								type: 'message',
+							},
+							5
+						)
+					)
+				})
+				.catch((exception) => {
+					console.log(exception)
+					dispatch(
+						notificationSet(
+							{
+								text: exception.response.data.error,
+								type: 'error',
+							},
+							5
+						)
+					)
+				})
 		}
 	}
 

@@ -20,36 +20,31 @@ const BlogForm = forwardRef(() => {
 
 	const blogHandler = (event) => {
 		event.preventDefault()
-		try {
-			dispatch(
-				createBlog({
-					title,
-					author,
-					url,
-				})
-			)
-			resetForm()
-			dispatch(
-				notificationSet(
-					{
-						text: `a new blog ${title} by ${author} added`,
-						type: 'message',
-					},
-					5
+		dispatch(createBlog({ title, author, url }))
+			.then(() => {
+				resetForm()
+				dispatch(
+					notificationSet(
+						{
+							text: `a new blog ${title} by ${author} added`,
+							type: 'message',
+						},
+						5
+					)
 				)
-			)
-		} catch (exception) {
-			console.log(exception)
-			dispatch(
-				notificationSet(
-					{
-						text: exception.response.data.error,
-						type: 'error',
-					},
-					5
+			})
+			.catch((exception) => {
+				console.log(exception)
+				dispatch(
+					notificationSet(
+						{
+							text: exception.response.data.error,
+							type: 'error',
+						},
+						5
+					)
 				)
-			)
-		}
+			})
 	}
 
 	const hideWhenVisible = { display: formVisible ? 'none' : '' }
