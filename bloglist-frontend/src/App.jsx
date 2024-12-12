@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initializeUsers } from './reducers/userReducer'
 import UserList from './components/UserList'
 import User from './components/User'
+import Blog from './components/Blog'
 import {
 	BrowserRouter as Router,
 	Routes,
@@ -34,10 +35,6 @@ const App = () => {
 	useEffect(() => {
 		dispatch(initializeUsers())
 	}, [blogs])
-
-	const users = useSelector((state) => {
-		return state.users
-	})
 
 	useEffect(() => {
 		const loggedUserJSON = window.localStorage.getItem('loggedUser')
@@ -74,10 +71,9 @@ const App = () => {
 							}
 						/>
 						<Route path="/users" element={<UserList />} />
-						<Route
-							path="/users/:id"
-							element={<User users={users} />}
-						/>
+						<Route path="/users/:id" element={<User />} />
+						<Route path="/blogs" element={<BlogList />} />
+						<Route path="/blogs/:id" element={<Blog />} />
 					</Routes>
 				</div>
 			)}
