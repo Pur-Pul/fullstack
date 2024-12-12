@@ -9,6 +9,13 @@ import Notification from './components/Notification'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeUsers } from './reducers/userReducer'
 import UserList from './components/UserList'
+import User from './components/User'
+import {
+	BrowserRouter as Router,
+	Routes,
+	Route,
+	useParams,
+} from 'react-router-dom'
 
 const App = () => {
 	const user = useSelector((state) => {
@@ -18,8 +25,19 @@ const App = () => {
 
 	useEffect(() => {
 		dispatch(initializeBlogs())
-		dispatch(initializeUsers())
 	}, [])
+
+	const blogs = useSelector((state) => {
+		return state.blogs
+	})
+
+	useEffect(() => {
+		dispatch(initializeUsers())
+	}, [blogs])
+
+	const users = useSelector((state) => {
+		return state.users
+	})
 
 	useEffect(() => {
 		const loggedUserJSON = window.localStorage.getItem('loggedUser')
@@ -35,7 +53,7 @@ const App = () => {
 	}
 
 	return (
-		<div>
+		<Router>
 			<Notification />
 			{user === null ? (
 				<LoginForm />
@@ -45,12 +63,25 @@ const App = () => {
 						{user.name} logged-in
 						<button onClick={logoutHandler}>logout</button>
 					</p>
-					<BlogForm />
-					<BlogList />
-					<UserList />
+					<Routes>
+						<Route
+							path="/"
+							element={
+								<div>
+									<BlogForm />
+									<BlogList />
+								</div>
+							}
+						/>
+						<Route path="/users" element={<UserList />} />
+						<Route
+							path="/users/:id"
+							element={<User users={users} />}
+						/>
+					</Routes>
 				</div>
 			)}
-		</div>
+		</Router>
 	)
 }
 

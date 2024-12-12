@@ -8,8 +8,6 @@ const loginSlice = createSlice({
 	reducers: {
 		loginUser(state, action) {
 			blogService.setToken(action.payload.token)
-			console.log(action.payload)
-
 			return action.payload
 		},
 		logoutUser(state, action) {
