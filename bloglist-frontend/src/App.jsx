@@ -11,12 +11,7 @@ import { initializeUsers } from './reducers/userReducer'
 import UserList from './components/UserList'
 import User from './components/User'
 import Blog from './components/Blog'
-import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	useParams,
-} from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 
 const App = () => {
 	const user = useSelector((state) => {
@@ -28,9 +23,7 @@ const App = () => {
 		dispatch(initializeBlogs())
 	}, [])
 
-	const blogs = useSelector((state) => {
-		return state.blogs
-	})
+	const blogs = useSelector((state) => state.blogs)
 
 	useEffect(() => {
 		dispatch(initializeUsers())
@@ -49,6 +42,15 @@ const App = () => {
 		dispatch(performLogout())
 	}
 
+	const padding = {
+		paddingRight: 5,
+		paddingLeft: 5,
+	}
+
+	const bar = {
+		backgroundColor: 'lightGrey',
+	}
+
 	return (
 		<Router>
 			<Notification />
@@ -56,8 +58,14 @@ const App = () => {
 				<LoginForm />
 			) : (
 				<div>
-					<p>
-						{user.name} logged-in
+					<p style={bar}>
+						<Link style={padding} to="/">
+							Blogs
+						</Link>
+						<Link style={padding} to="/users">
+							Users
+						</Link>
+						<span style={padding}>{user.name} logged-in</span>
 						<button onClick={logoutHandler}>logout</button>
 					</p>
 					<Routes>

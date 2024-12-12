@@ -1,16 +1,13 @@
-import { useState } from 'react'
-import PropTypes from 'prop-types'
 import { performRemove, performLike } from '../reducers/blogReducer'
 import { notificationSet } from '../reducers/notificationReducer.js'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
-const Blog = ({ blog }) => {
-	if (!blog) {
-		blog = useSelector((state) => state.blogs).find(
-			(blog) => blog.id === useParams().id
-		)
-	}
+const Blog = () => {
+	const blog = useSelector((state) => state.blogs).find(
+		(blog) => blog.id === useParams().id
+	)
+
 	if (!blog) {
 		return null
 	}
