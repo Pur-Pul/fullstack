@@ -40,6 +40,13 @@ export const initializeBlogs = () => {
 	}
 }
 
+export const initializeComments = (id) => {
+	return async (dispatch) => {
+		let blog = await blogService.get(id)
+		dispatch(updateBlog(blog))
+	}
+}
+
 export const createBlog = (blog) => {
 	return async (dispatch) => {
 		const new_blog = await blogService.post(blog)

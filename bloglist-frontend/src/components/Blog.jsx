@@ -1,18 +1,28 @@
-import { performRemove, performLike } from '../reducers/blogReducer'
+import {
+	performRemove,
+	performLike,
+	initializeComments,
+} from '../reducers/blogReducer'
 import { notificationSet } from '../reducers/notificationReducer.js'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
 
 const Blog = () => {
+	const dispatch = useDispatch()
+	const id = useParams().id
+	useEffect(() => {
+		dispatch(initializeComments(id))
+	}, [])
+
 	const blog = useSelector((state) => state.blogs).find(
-		(blog) => blog.id === useParams().id
+		(blog) => blog.id === id
 	)
 
 	if (!blog) {
 		return null
 	}
 
-	const dispatch = useDispatch()
 	const loggedUserJSON = window.localStorage.getItem('loggedUser')
 	let user
 	if (loggedUserJSON) {
@@ -91,6 +101,17 @@ const Blog = () => {
 			<button style={showIfCreator} onClick={removeHandler}>
 				remove
 			</button>
+			<br />
+			<h3>comments</h3>
+			<ul>
+				{blog.comments.map((comment) => {
+					if (comment.id == undefined) {
+						return null
+					} else {
+						return <li key={comment.id}>{comment.text}</li>
+					}
+				})}
+			</ul>
 		</div>
 	)
 }
