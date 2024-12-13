@@ -7,6 +7,7 @@ import { notificationSet } from '../reducers/notificationReducer.js'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
+import CommentForm from './CommentForm.jsx'
 
 const Blog = () => {
 	const dispatch = useDispatch()
@@ -86,6 +87,9 @@ const Blog = () => {
 				})
 		}
 	}
+	console.log(user.id)
+	console.log(blog.creator)
+
 	const showIfCreator = { display: user.id === blog.creator.id ? '' : 'none' }
 
 	return (
@@ -103,6 +107,7 @@ const Blog = () => {
 			</button>
 			<br />
 			<h3>comments</h3>
+			<CommentForm id={blog.id} />
 			<ul>
 				{blog.comments.map((comment) => {
 					if (comment.id == undefined) {
