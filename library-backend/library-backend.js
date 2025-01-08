@@ -147,7 +147,7 @@ const typeDefs = `
     ): Book
     editAuthor(
       name: String!
-      setBornTo: Int!
+      born: Int!
     ): Author
   }
 `
@@ -157,18 +157,14 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      const books = await Book.find({})
-      return books
-      /*
-      var return_val = books
+      let books = Book.find({}).populate('author')
       if (args.author) {
-        return_val = return_val.filter((book) => book.author === args.author)
+        books = await Book.find({}).populate('author')
       }
       if (args.genre) {
-        return_val = return_val.filter((book) => book.genres.includes(args.genre))
+        books = await Book.find({ genres: args.genre}).populate('author')
       }
-      return return_val
-      */
+      return books
     },
     allAuthors: async () => {
       return Author.find({})
@@ -190,24 +186,17 @@ const resolvers = {
       const book = new Book({ ...args, author: author })
       await book.save()
       return book
-      /*
-      const book = { ...args, id: uuid() }
-      if (book.author && !authors.some(author => author.name === book.author)) {
-        authors = authors.concat({ name:book.author, id: uuid() })
-      }
-      books = books.concat(book)
-      return book
-      */
     },
     editAuthor: async (root, args) => {
-      return null
-      if (authors.some(author => author.name === args.name)) {
-        const index = authors.findIndex(author => author.name === args.name)
-        authors[index] = { ...authors[index], born: args.setBornTo }
-        return authors[index]
-      } else {
-        return null
+      const author = await Author.findOneAndUpdate(
+        { name: args.name },
+        { $set: { ...args } },
+        {new: true}
+      )
+      if (author) {
+        await author.save()
       }
+      return author
     }
   }
 }
