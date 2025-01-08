@@ -18,6 +18,7 @@ mutation createBook($title: String!, $author: String, $published: Int, $genres: 
 export const ALL_BOOKS = gql`
 query {
   allBooks {
+    id
     title
     author
     published
