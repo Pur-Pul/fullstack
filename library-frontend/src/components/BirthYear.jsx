@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { gql, useMutation } from '@apollo/client'
 import { EDIT_BIRTH_YEAR } from './queries'
 
-const BirthYearForm = () => {
+const BirthYearForm = ({ authors }) => {
     const [name, setName] = useState('')
     const [born, setBorn] = useState('')
     const [ editAuthor ] = useMutation(EDIT_BIRTH_YEAR)
@@ -25,10 +25,10 @@ const BirthYearForm = () => {
             <form onSubmit={submit}>
                 <div>
                     name
-                    <input
-                        value={name}
-                        onChange={({ target }) => setName(target.value)}
-                    />
+                    <select value={name} onChange={({ target }) => setName(target.value)}>
+                        <option hidden='hidden' key = "">Select author</option>
+                        {authors.map(author => <option key = {author.name}>{author.name}</option>)}
+                    </select>
                     </div>
                     <div>
                     born
