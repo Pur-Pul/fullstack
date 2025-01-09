@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { gql, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { CREATE_BOOK } from './queries'
-
 
 const NewBook = () => {
   const [title, setTitle] = useState('')
