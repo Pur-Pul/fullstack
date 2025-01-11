@@ -8,11 +8,14 @@ import {
   Routes, Route, Link
 } from 'react-router-dom'
 import LoginForm from "./components/Login";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
+import { CURRENT_USER } from "./components/queries";
 
 const App = () => {
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null)
   const client = useApolloClient()
+  const user_result = useQuery(CURRENT_USER, { pollInterval: 2000 })
   const handleLogout = (e) => {
     setToken(null)
     localStorage.clear()
@@ -22,8 +25,14 @@ const App = () => {
     if (localStorage.getItem("login-token")) {
       setToken(localStorage.getItem("login-token"))
     }
-      
   }, [])
+
+  useEffect(() => {
+    if (user_result.data) {
+      setUser(user_result.data.me)
+    }
+  }, [user_result.data])
+
   return (
     <Router>
       <div>
@@ -37,7 +46,7 @@ const App = () => {
         <Route path='/authors' element={<Authors />} />
         <Route path='/books' element={<Books />} />
         <Route path='/add' element={<NewBook />} />
-        <Route path='/recommendations' element={<Recommendations />} />
+        <Route path='/recommendations' element={<Recommendations genre={user ? user.favoriteGenre : null}/>} />
         <Route path='/login' element={<LoginForm setToken={setToken}/>} />
       </Routes>
     </Router>

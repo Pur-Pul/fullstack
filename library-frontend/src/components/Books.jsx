@@ -1,17 +1,26 @@
 import { useQuery } from '@apollo/client'
-import { ALL_BOOKS } from './queries'
-import { useState } from 'react'
+import { BOOKS_BY_GENRE } from './queries'
+import { useEffect, useState } from 'react'
 
 const Books = () => {
-  const result = useQuery(ALL_BOOKS, { pollInterval: 2000 })
   const [filter, setFilter] = useState('')
-  if (result.loading) {
-    return <div>loading...</div>
-  }
-  const books = result.data.allBooks
-  let genres = []
-  books.forEach(book => genres = genres.concat(book.genres))
-  genres = [...new Set(genres)]
+  const [genres, setGenres] = useState([])
+  const [books, setBooks] = useState([])
+  const result = useQuery(BOOKS_BY_GENRE, { variables: {genre: filter}, pollInterval: 2000 })
+  useEffect(() => {
+    if (result.data) {
+      setBooks(result.data.allBooks)
+    }
+  }, [result.data])
+
+  useEffect(() => {
+    if (filter === '') {
+      var temp = []
+      books.forEach(book => temp = temp.concat(book.genres))
+      setGenres([...new Set(temp)])
+    }
+  }, [books])
+
   return (
     <div>
       <h2>books</h2>
@@ -23,7 +32,7 @@ const Books = () => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.filter(book => book.genres.includes(filter) || filter === '').map((a) => (
+          {books.map((a) => (
             <tr key={a.id}>
               <td>{a.title}</td>
               <td>{a.author != null ? a.author.name : ""}</td>
