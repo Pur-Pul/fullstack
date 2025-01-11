@@ -29,7 +29,7 @@ const Authors = () => {
           ))}
         </tbody>
       </table>
-      <BirthYearForm authors={authors}/>
+      {localStorage.getItem('login-token') ? <BirthYearForm authors={authors}/> : null}
     </div>
   )
 }

@@ -10,7 +10,7 @@ mutation createBook($title: String!, $author: String, $published: Int, $genres: 
   ) {
     title
     author {
-        name
+      name
     }
     published
     genres
@@ -23,7 +23,7 @@ query {
     id
     title
     author {
-        name
+      name
     }
     published
     genres
@@ -39,11 +39,20 @@ query {
   }
 }
 `
+export const CURRENT_USER = gql`
+query {
+  me {
+    username
+    id
+    favoriteGenre
+  }
+}
+`
 export const EDIT_BIRTH_YEAR = gql`
 mutation editBirthYear($name: String!, $born: Int!) {
     editAuthor(name: $name, born: $born) {
-        name
-        born
+      name
+      born
     }
 }
 `
