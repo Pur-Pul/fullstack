@@ -8,8 +8,8 @@ import {
   Routes, Route, Link
 } from 'react-router-dom'
 import LoginForm from "./components/Login";
-import { useApolloClient, useQuery } from "@apollo/client";
-import { CURRENT_USER } from "./components/queries";
+import { useApolloClient, useQuery, useSubscription } from "@apollo/client";
+import { CURRENT_USER, BOOK_ADDED } from "./components/queries";
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -32,6 +32,13 @@ const App = () => {
       setUser(user_result.data.me)
     }
   }, [user_result.data])
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const book = data.data.bookAdded 
+      window.alert(`${book.title} by ${book.author.name} was added.`)
+    }
+  })
 
   return (
     <Router>
