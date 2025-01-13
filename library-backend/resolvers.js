@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken')
 const Author = require('./models/author')
 const User = require('./models/user')
 const Book = require('./models/book')
-
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 
@@ -22,11 +21,20 @@ const resolvers = {
             }
             return books
         },
-        allAuthors: async () => { return Author.find({}) },
+        allAuthors: async () => { 
+            let author = await Author.find({}).populate('books')
+            //console.log(author)
+            //author.bookCount = author.books.length
+            //delete author.books
+            return author 
+        },
         me: (root, args, context) => { return context.currentUser}
     },
     Author: {
-        bookCount: async (root) => 0//books.filter((book) => book.author === root.name).length
+        bookCount: async (root, args, context) => {
+            const data = await context.loaders.book.load(root._id)
+            return data.books.length
+        }
     },
     Mutation: {
         addBook: async (root, args, context) => {
