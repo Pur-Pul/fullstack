@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client'
-import { BOOKS_BY_GENRE } from './queries'
+import { useQuery, useSubscription } from '@apollo/client'
+import { BOOKS_BY_GENRE, BOOK_ADDED } from './queries'
 import { useEffect, useState } from 'react'
 
 const Books = () => {
@@ -20,6 +20,14 @@ const Books = () => {
       setGenres([...new Set(temp)])
     }
   }, [books])
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const book = data.data.bookAdded 
+      //window.alert(`${book.title} by ${book.author.name} was added.`)
+      setBooks(books.concat(book))
+    }
+  })
 
   return (
     <div>

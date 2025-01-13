@@ -33,13 +33,6 @@ const App = () => {
     }
   }, [user_result.data])
 
-  useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
-      const book = data.data.bookAdded 
-      window.alert(`${book.title} by ${book.author.name} was added.`)
-    }
-  })
-
   return (
     <Router>
       <div>
