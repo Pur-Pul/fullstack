@@ -9,13 +9,13 @@ interface Result {
 } 
 
 const calculateExercises = () => {
-    const arguments = process.argv.slice(3)
-    if (arguments.length < 2) {
+    const args = process.argv.slice(3)
+    if (args.length < 2) {
         return 'target and exercise hours are required.'
     } else {
-        const target = Number(arguments[0])
+        const target = Number(args[0])
         var return_val = {
-            periodLength: arguments.length - 1,
+            periodLength: args.length - 1,
             trainingDays: 0,
             success: false,
             rating: 0,
@@ -23,8 +23,8 @@ const calculateExercises = () => {
             target: target,
             average: 0
         }
-        for (var i = 1; i < arguments.length; i++) {
-            const day = Number(arguments[i])
+        for (var i = 1; i < args.length; i++) {
+            const day = Number(args[i])
             if (!isNaN(day)) {
                 if (day) { return_val.trainingDays++ }
                 return_val.success = return_val.success && day >= target
