@@ -8,34 +8,49 @@ interface Result {
     average: number
 } 
 
-const calculateExercises = (exercise_hours : number[], target : number) => {
-    var return_val = {
-        periodLength: exercise_hours.length,
-        trainingDays: 0,
-        success: false,
-        rating: 0,
-        ratingDescription: "",
-        target: target,
-        average: exercise_hours.reduce((sum, val) => sum + val, 0) / exercise_hours.length
+const calculateExercises = () => {
+    const arguments = process.argv.slice(3)
+    if (arguments.length < 2) {
+        return 'target and exercise hours are required.'
+    } else {
+        const target = Number(arguments[0])
+        var return_val = {
+            periodLength: arguments.length - 1,
+            trainingDays: 0,
+            success: false,
+            rating: 0,
+            ratingDescription: "",
+            target: target,
+            average: 0
+        }
+        for (var i = 1; i < arguments.length; i++) {
+            const day = Number(arguments[i])
+            if (!isNaN(day)) {
+                if (day) { return_val.trainingDays++ }
+                return_val.success = return_val.success && day >= target
+                return_val.average += day
+            } else {
+                return 'target and exercise hours need to be numbers.'
+            }
+        }
+        return_val.average /= return_val.periodLength
+
+        if (return_val.average / target < 0.5) { 
+            return_val.rating = 1
+            return_val.ratingDescription = "room for improvement"
+        }
+        else if (return_val.average / target >= 0.5 && return_val.average / target < 1) { 
+            return_val.rating = 2 
+            return_val.ratingDescription = "not too bad but could be better"
+        }
+        else { 
+            return_val.rating = 3 
+            return_val.ratingDescription = "perfect"
+        }
+        
+        return return_val
     }
-    for (var i = 0; i < exercise_hours.length; i++) {
-        if (exercise_hours[i]) { return_val.trainingDays++ }
-        return_val.success = return_val.success && exercise_hours[i] >= target
-    }
-    if (return_val.average / target < 0.5) { 
-        return_val.rating = 1
-        return_val.ratingDescription = "room for improvement"
-    }
-    else if (return_val.average / target >= 0.5 && return_val.average / target < 1) { 
-        return_val.rating = 2 
-        return_val.ratingDescription = "not too bad but could be better"
-    }
-    else { 
-        return_val.rating = 3 
-        return_val.ratingDescription = "perfect"
-    }
-    
-    return return_val
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2))
+
+console.log(calculateExercises())
