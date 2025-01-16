@@ -1,20 +1,10 @@
-interface Result { 
-    periodLength: number,
-    trainingDays: number,
-    success: boolean,
-    rating: number,
-    ratingDescription: string,
-    target: number,
-    average: number
-} 
-
 const calculateExercises = () => {
-    const args = process.argv.slice(3)
+    const args = process.argv.slice(3);
     if (args.length < 2) {
-        return 'target and exercise hours are required.'
+        return 'target and exercise hours are required.';
     } else {
-        const target = Number(args[0])
-        var return_val = {
+        const target = Number(args[0]);
+        const return_val = {
             periodLength: args.length - 1,
             trainingDays: 0,
             success: false,
@@ -22,35 +12,34 @@ const calculateExercises = () => {
             ratingDescription: "",
             target: target,
             average: 0
-        }
-        for (var i = 1; i < args.length; i++) {
-            const day = Number(args[i])
+        };
+        for (let i = 1; i < args.length; i++) {
+            const day = Number(args[i]);
             if (!isNaN(day)) {
-                if (day) { return_val.trainingDays++ }
-                return_val.success = return_val.success && day >= target
-                return_val.average += day
+                if (day) { return_val.trainingDays++; }
+                return_val.success = return_val.success && day >= target;
+                return_val.average += day;
             } else {
-                return 'target and exercise hours need to be numbers.'
+                return 'target and exercise hours need to be numbers.';
             }
         }
-        return_val.average /= return_val.periodLength
+        return_val.average /= return_val.periodLength;
 
         if (return_val.average / target < 0.5) { 
-            return_val.rating = 1
-            return_val.ratingDescription = "room for improvement"
+            return_val.rating = 1;
+            return_val.ratingDescription = "room for improvement";
         }
         else if (return_val.average / target >= 0.5 && return_val.average / target < 1) { 
-            return_val.rating = 2 
-            return_val.ratingDescription = "not too bad but could be better"
+            return_val.rating = 2;
+            return_val.ratingDescription = "not too bad but could be better";
         }
         else { 
-            return_val.rating = 3 
-            return_val.ratingDescription = "perfect"
+            return_val.rating = 3;
+            return_val.ratingDescription = "perfect";
         }
-        
-        return return_val
+        return return_val;
     }
-}
+};
 
 
-console.log(calculateExercises())
+console.log(calculateExercises());

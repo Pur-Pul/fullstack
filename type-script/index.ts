@@ -1,10 +1,7 @@
-import express = require('express');
+import express from 'express';
 import bmiCalculator from './bmiCalculator';
 
 const app = express();
-interface RequestParams {}
-interface ResponseBody {}
-interface RequestBody {}
 interface RequestQuery {
   weight: string;
   height: string;
@@ -13,21 +10,21 @@ app.get('/hello', (_req, res) => {
   res.send('Hello Full Stack!');
 });
 
-app.get('/bmi', (req: express.Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: express.Response) => {
-  const weight: string = req.query.weight;
-  const height: string = req.query.height;
+app.get('/bmi', (req: express.Request<unknown, unknown, unknown, RequestQuery>, res: express.Response) => {
+  const weight: string | undefined = req.query.weight;
+  const height: string | undefined = req.query.height;
   try {
-    const bmi = bmiCalculator(height, weight)
+    const bmi = bmiCalculator(height, weight);
     res.send({
       weight: Number(weight),
       height: Number(height),
       bmi: bmi
-    })
+    });
   } catch(error) {
     if (error instanceof ReferenceError || error instanceof TypeError) {
-      res.status(400).send(String(error))
+      res.status(400).send({ message: error.message });
     } else {
-      res.status(500).send(String(error))
+      res.status(500).send({ message: String(error) });
     }
   }
 });
