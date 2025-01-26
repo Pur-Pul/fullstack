@@ -14,3 +14,10 @@ export type NewDiaryEntry = {
 };
 
 export type NonSensitiveDiaryEntry = Omit<DiaryEntry, 'comment'>;
+
+export type MessageType = "error" | "message"
+
+export type Message = {
+    text: string
+    type: MessageType
+}

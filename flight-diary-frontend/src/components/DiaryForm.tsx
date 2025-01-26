@@ -1,14 +1,16 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import diaryService from "../services/diaries";
 import { useNavigate } from "react-router";
-import { NonSensitiveDiaryEntry } from "../types";
+import { Message, NonSensitiveDiaryEntry } from "../types";
+import axios from "axios";
 
 interface DiaryProps {
     setDiaries: Dispatch<SetStateAction<NonSensitiveDiaryEntry[]>>
     diaries: NonSensitiveDiaryEntry[]
+    setMessage: Dispatch<SetStateAction<Message | null>>
 };
 
-const DiaryForm = ({ setDiaries, diaries } : DiaryProps) => {
+const DiaryForm = ({ setDiaries, diaries, setMessage } : DiaryProps) => {
     const [date, setDate] = useState<string>("");
     const [weather, setWeather] = useState<string>("");
     const [visibility, setVisibility] = useState<string>("");
@@ -19,17 +21,26 @@ const DiaryForm = ({ setDiaries, diaries } : DiaryProps) => {
         e.preventDefault();
         try {
             const new_diary = {date, weather, visibility, comment};
-            let {comment:_, ...result} = await diaryService.create(new_diary);
+            const {...result}: NonSensitiveDiaryEntry = await diaryService.create(new_diary);
             setDiaries(diaries.concat(result));
 
             setDate("");
             setWeather("");
             setVisibility("");
             setComment("");
-            
+
             navigate("/");
-        } catch (e) {
-            console.log(e);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error(error)
+                if (error.response != undefined) {
+                    const new_message: Message = {text: error.response.data, type:"error" }
+                    setMessage(new_message)
+                    setTimeout(() => setMessage(null), 5000)
+                }
+            } else {
+                console.error(error);
+            }
         }
     }
 
