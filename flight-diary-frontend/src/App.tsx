@@ -1,9 +1,10 @@
 import DiaryList from "./components/DiaryList";
 import Diary from "./components/Diary";
 import diaryService from "./services/diaries";
+import DiaryForm from "./components/DiaryForm";
 import { NonSensitiveDiaryEntry } from "./types";
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route} from "react-router";
 
 function App() {
   const [diaries, setDiaries] = useState<NonSensitiveDiaryEntry[]>([]);
@@ -22,9 +23,10 @@ function App() {
         <Routes> 
           <Route path="/" element={<DiaryList diaries={ diaries }/>} />
           <Route path="diaries/:id" element={<Diary />} />
+          <Route path="/new-diary" element={<DiaryForm setDiaries={ setDiaries } diaries = { diaries }/>} />
         </Routes>
+
       </BrowserRouter>
-      
     </div>
   )
 };
