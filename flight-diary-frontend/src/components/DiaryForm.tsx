@@ -43,23 +43,41 @@ const DiaryForm = ({ setDiaries, diaries, setMessage } : DiaryProps) => {
             }
         }
     }
+    const weathers = ["sunny", "rainy", "cloudy", "stormy", "windy"];
+    const visibilities = ["great", "good", "ok", "poor"];
 
     return (
         <div>
             <h2>New diary entry</h2>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="date">Date:</label>
-                <input name="date" id="date" onChange={({ target }) => setDate(target.value)}/><br/>
-                <label htmlFor="weather">Weather:</label>
-                <input name="weather" id="weather" onChange={({ target }) => setWeather(target.value)}/><br/>
-                <label htmlFor="visibility">Visibility:</label>
-                <input name="visibility" id="visibility" onChange={({ target }) => setVisibility(target.value)}/><br/>
+                <input type="date" name="date" id="date" onChange={({ target }) => setDate(target.value)}/><br/>
+                
+                <fieldset>
+                <legend>Weather</legend>
+                    {weathers.map(weather => 
+                        <div key={weather}>
+                            <input type="radio" id={weather} value={weather} name="weather" onChange={({ target }) => setWeather(target.value)}/>
+                            <label htmlFor={weather}>{weather}</label><br/>
+                        </div>
+                    )}
+                </fieldset>
+                <fieldset>
+                <legend>Visibility</legend>
+                    {visibilities.map(visibility =>
+                        <div key={visibility}>
+                            <input type="radio" id={visibility} value={visibility} name="visibility" onChange={({ target }) => setVisibility(target.value)}/>
+                            <label htmlFor={visibility}>{visibility}</label><br/>
+                        </div>
+                    )}
+                </fieldset>
+                
                 <label htmlFor="comment">Comment:</label>
                 <input name="comment" id="comment" onChange={({ target }) => setComment(target.value)}/><br/>
+                
                 <button type="submit">Submit diary</button>
             </form>
         </div>
     );
 };
-
 export default DiaryForm;
