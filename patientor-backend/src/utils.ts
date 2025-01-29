@@ -29,7 +29,7 @@ export const hospitalEntrySchema = baseEntrySchema.extend({
         date: z.string().date(),
         criteria: z.string(),
     })
-})
+});
 
 export const newPatientSchema = z.object({
     name: z.string(),
