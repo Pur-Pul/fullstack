@@ -5,22 +5,38 @@ import MaleIcon from '@mui/icons-material/Male';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import patientService from '../../services/patients';
 import { useEffect, useState } from "react";
-import { Entry } from "../../types";
+import { Entry, Diagnosis } from "../../types";
 
 interface EntryProps {
     entries: Entry[]
+    diagnoses: Diagnosis[]
 };
 
-const Entries = ({ entries }: EntryProps) => {
+interface PatientPageProps {
+    diagnoses: Diagnosis[]
+};
+
+const Entries = ({ entries, diagnoses }: EntryProps) => {
     return entries.map(entry => 
         <div key={ entry.id }>
             <p>{ entry.date } <i>{ entry.description }</i></p>
-            { entry.diagnosisCodes ? <ul>{ entry.diagnosisCodes.map(code => <li key={ code }>{ code }</li>) }</ul> : null }
+            { 
+                entry.diagnosisCodes ? <ul>{
+                    entry.diagnosisCodes.map((code) => {
+                        const diagnosis = diagnoses.find(diagnosis => diagnosis.code == code)
+                        return (
+                            <li key={ code }>
+                                { code } { diagnosis ? diagnosis.name : "unknown diagnosis" }
+                            </li>
+                        )
+                    })
+                }</ul> : null 
+            }
         </div>
     );
 };
 
-const PatientPage = () => {
+const PatientPage = ({ diagnoses } : PatientPageProps) => {
     const { id } = useParams()
     const [patient, setPatient] = useState<Patient | null>(null)
 
@@ -57,7 +73,7 @@ const PatientPage = () => {
             <span>ssn: { patient.ssn ? patient.ssn : '-' }</span><br/>
             <span>date of birth: { patient.dateOfBirth ? patient.dateOfBirth : '-' }</span><br/>
             <span>occupation: { patient.occupation }</span>
-            <Entries entries = { patient.entries }/>
+            <Entries entries = { patient.entries } diagnoses={ diagnoses }/>
         </div>
     );
 };
