@@ -1,4 +1,4 @@
-import { Gender, Diagnosis} from "./types";
+import { Gender, Diagnosis, HealthCheckRating} from "./types";
 import z from "zod";
 
 export const parseDiagnosisCodes = (object: unknown): Array<Diagnosis['code']> =>  {
@@ -19,7 +19,7 @@ export const newBaseEntrySchema = z.object({
 
 export const newHealthCheckEntrySchema = newBaseEntrySchema.extend({
     type: z.literal("HealthCheck"),
-    healthCheckRating: z.number()
+    healthCheckRating: z.nativeEnum(HealthCheckRating)
 });
 export const healthCheckEntrySchema = newHealthCheckEntrySchema.extend({ id: z.string() });
 
