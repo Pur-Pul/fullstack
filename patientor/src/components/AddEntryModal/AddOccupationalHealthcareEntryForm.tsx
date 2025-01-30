@@ -1,8 +1,8 @@
 import { useState, SyntheticEvent } from "react";
 
-import {  TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
+import {  TextField, Grid, Button } from '@mui/material';
 
-import { EntryFormValues } from "../../types";
+import { EntryFormValues, EntryTypes } from "../../types";
 
 interface Props {
   id: string,
@@ -10,30 +10,24 @@ interface Props {
   onSubmit: (id: string, values: EntryFormValues) => void;
 }
 
-//interface GenderOption{
-//  value: Gender;
-//  label: string;
-//}
-
-//const genderOptions: GenderOption[] = Object.values(Gender).map(v => ({
-//  value: v, label: v.toString()
-//}));
-
-const AddEntryForm = ({ id, onCancel, onSubmit }: Props) => {
+const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
-  const [healthCheckRating, setHealthCheckRating] = useState(0);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [employerName, setEmployerName] = useState('')
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
   const addEntry = (event: SyntheticEvent) => {
     event.preventDefault();
     onSubmit(id, {
-      type:"HealthCheck",
+      type:EntryTypes.OccupationalHealthcare,
       description,
       date,
       specialist,
-      healthCheckRating,
+      sickLeave: startDate || endDate ? {startDate:startDate, endDate:endDate} : undefined,
+      employerName,
       diagnosisCodes
     });
   };
@@ -61,10 +55,24 @@ const AddEntryForm = ({ id, onCancel, onSubmit }: Props) => {
           onChange={({ target }) => setDate(target.value)}
         />
         <TextField
-          label="Healthcheck rating"
+          label="Sick leave start date"
+          placeholder="YYYY-MM-DD"
           fullWidth
-          value={healthCheckRating}
-          onChange={({ target }) => setHealthCheckRating(Number(target.value))}
+          value={startDate}
+          onChange={({ target }) => setStartDate(target.value)}
+        />
+        <TextField
+          label="Sick leave end date"
+          placeholder="YYYY-MM-DD"
+          fullWidth
+          value={endDate}
+          onChange={({ target }) => setEndDate(target.value)}
+        />
+        <TextField
+          label="Employer name"
+          fullWidth
+          value={employerName}
+          onChange={({ target }) => setEmployerName(target.value)}
         />
         <TextField
           label="Diagnosis codes"
@@ -101,23 +109,4 @@ const AddEntryForm = ({ id, onCancel, onSubmit }: Props) => {
   );
 };
 
-/*
-<InputLabel style={{ marginTop: 20 }}>Gender</InputLabel>
-        <Select
-          label="Gender"
-          fullWidth
-          value={gender}
-          onChange={onGenderChange}
-        >
-        {genderOptions.map(option =>
-          <MenuItem
-            key={option.label}
-            value={option.value}
-          >
-            {option.label
-          }</MenuItem>
-        )}
-        </Select>
-*/
-
-export default AddEntryForm;
+export default AddOccupationalHealthcareEntryForm;
