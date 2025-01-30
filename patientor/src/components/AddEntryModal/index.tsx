@@ -3,17 +3,18 @@ import { useState } from 'react';
 import AddHealthCheckEntryForm from "./AddHealthCheckEntryForm";
 import AddHospitalEntryForm from './AddHospitalEntryForm';
 import AddOccupationalHealthcareEntryForm from "./AddOccupationalHealthcareEntryForm";
-import { EntryFormValues, EntryTypes } from "../../types";
+import { EntryFormValues, EntryTypes, Diagnosis } from "../../types";
 
 interface Props {
   id: string;
+  diagnoses: Diagnosis[];
   modalOpen: boolean;
   onClose: () => void;
   onSubmit: (id: string, values: EntryFormValues) => void;
   error?: string;
 }
 
-const AddEntryModal = ({ id, modalOpen, onClose, onSubmit, error }: Props) => {
+const AddEntryModal = ({ id, diagnoses, modalOpen, onClose, onSubmit, error }: Props) => {
   const [entryType, setEntryType] = useState<EntryTypes>();
 
   interface EntryTypeOption{
@@ -24,7 +25,8 @@ const AddEntryModal = ({ id, modalOpen, onClose, onSubmit, error }: Props) => {
   const entryTypeOptions: EntryTypeOption[] = Object.values(EntryTypes).map(v => ({
     value: v, label: v.toString()
   }));
-
+  console.log(EntryTypes);
+  
   const onEntryTypeChange = (event: SelectChangeEvent<string>) => {
       event.preventDefault();
       if ( typeof event.target.value === "string") {
@@ -43,7 +45,7 @@ const AddEntryModal = ({ id, modalOpen, onClose, onSubmit, error }: Props) => {
     <Select
       label="Entry type"
       fullWidth
-      value={entryType}
+      value={entryType ? entryType : ""}
       onChange={onEntryTypeChange}
     >
     {entryTypeOptions.map(option =>
@@ -60,11 +62,11 @@ const AddEntryModal = ({ id, modalOpen, onClose, onSubmit, error }: Props) => {
       {(() => {
         switch (entryType) {
           case EntryTypes.HealthCheck:
-            return <AddHealthCheckEntryForm id={id} onSubmit={onSubmit} onCancel={onClose}/>
+            return <AddHealthCheckEntryForm id={id} diagnoses={diagnoses} onSubmit={onSubmit} onCancel={onClose}/>
           case EntryTypes.Hospital:
-            return <AddHospitalEntryForm id={id} onSubmit={onSubmit} onCancel={onClose}/>
+            return <AddHospitalEntryForm id={id} diagnoses={diagnoses} onSubmit={onSubmit} onCancel={onClose}/>
           case EntryTypes.OccupationalHealthcare:
-            return <AddOccupationalHealthcareEntryForm id={id} onSubmit={onSubmit} onCancel={onClose}/>
+            return <AddOccupationalHealthcareEntryForm id={id} diagnoses={diagnoses} onSubmit={onSubmit} onCancel={onClose}/>
           default:
             return null
         }

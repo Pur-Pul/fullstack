@@ -1,23 +1,36 @@
 import { useState, SyntheticEvent } from "react";
 
-import {  TextField, Grid, Button } from '@mui/material';
+import {  TextField, Grid, Button, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
-import { EntryFormValues, EntryTypes } from "../../types";
+import { EntryFormValues, EntryTypes, Diagnosis } from "../../types";
 
 interface Props {
-  id: string,
+  id: string;
+  diagnoses: Diagnosis[];
   onCancel: () => void;
   onSubmit: (id: string, values: EntryFormValues) => void;
 }
 
-const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) => {
+const AddOccupationalHealthcareEntryForm = ({ id, diagnoses, onCancel, onSubmit }: Props) => {
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(' ');
   const [specialist, setSpecialist] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(' ');
+  const [endDate, setEndDate] = useState(' ');
   const [employerName, setEmployerName] = useState('')
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+
+  const onDiagnosesChange = (event: SelectChangeEvent<typeof diagnosisCodes>) => {
+    event.preventDefault();
+    const { target: { value },} = event;
+    const values: string[] = typeof value === 'string' ? value.split(',') : value
+    const codes = diagnoses.filter((diagnosis) => {
+      return values.includes(diagnosis.code)
+    }).map(diagnosis => diagnosis.code);
+    if (codes) {
+      setDiagnosisCodes(codes);
+    }
+  };
 
   const addEntry = (event: SyntheticEvent) => {
     event.preventDefault();
@@ -49,6 +62,7 @@ const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) =
         />
         <TextField
           label="Date"
+          type="date"
           placeholder="YYYY-MM-DD"
           fullWidth
           value={date}
@@ -56,6 +70,7 @@ const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) =
         />
         <TextField
           label="Sick leave start date"
+          type="date"
           placeholder="YYYY-MM-DD"
           fullWidth
           value={startDate}
@@ -63,6 +78,7 @@ const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) =
         />
         <TextField
           label="Sick leave end date"
+          type="date"
           placeholder="YYYY-MM-DD"
           fullWidth
           value={endDate}
@@ -74,12 +90,22 @@ const AddOccupationalHealthcareEntryForm = ({ id, onCancel, onSubmit }: Props) =
           value={employerName}
           onChange={({ target }) => setEmployerName(target.value)}
         />
-        <TextField
+        <Select
+          multiple
           label="Diagnosis codes"
           fullWidth
           value={diagnosisCodes}
-          onChange={({ target }) => setDiagnosisCodes(target.value.split(',').map(code => code.trim()))}
-        />
+          onChange={onDiagnosesChange}
+        >
+          {diagnoses.map(option =>
+            <MenuItem
+              key={option.name}
+              value={option.code}
+            >
+              {option.name
+            }</MenuItem>
+          )}
+        </Select>
         <Grid>
           <Grid item>
             <Button

@@ -91,6 +91,7 @@ const PatientPage = ({ diagnoses } : PatientPageProps) => {
 
             <AddEntryModal
                 id={id}
+                diagnoses={diagnoses}
                 modalOpen={modalOpen}
                 onSubmit={submitNewEntry}
                 error={error}
