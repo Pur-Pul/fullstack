@@ -22,7 +22,7 @@ const get = async (id: string) => {
 const create = async (object: PatientFormValues) => {
   const { data } = await axios.post<Patient>(
     `${apiBaseUrl}/patients`,
-    object
+    {...object, entries: []}
   );
 
   return data;
